@@ -1,0 +1,141 @@
+import Foundation
+import Testing
+@testable import InfrastructureGO
+
+/// The counts the pipeline wrote beside the files, so that the app's bundle is checked against the same numbers.
+nonisolated struct InletSummary: Decodable {
+    nonisolated struct ZoneCount: Decodable {
+        let inlets: Int
+        let playable: Int
+    }
+
+    let layerRows: Int
+    let inlets: Int
+    let collapsedRows: Int
+    let zones: [String: ZoneCount]
+    let playable: Int
+
+    static func read() throws -> InletSummary {
+        try GameData.decoder.decode(InletSummary.self, from: Repo.data("data/inlets/summary.json"))
+    }
+}
+
+@Suite("The bundled drains and zones")
+struct StoresTests {
+    @Test func theBundleHoldsEveryDrainThePipelineCounted() throws {
+        let store = try Repo.inlets()
+        let summary = try InletSummary.read()
+        #expect(store.inlets.count == summary.inlets)
+        #expect(store.inlets.reduce(0) { $0 + $1.dup } == summary.collapsedRows)
+        #expect(store.inlets.count + summary.collapsedRows == summary.layerRows)
+        #expect(Set(store.inlets.map(\.id)).count == store.inlets.count)
+        #expect(!store.source.isEmpty && !store.licence.isEmpty && store.retrieved == "2026-09-11")
+    }
+
+    @Test func aDrainIsFoundByItsId() throws {
+        let store = try Repo.inlets()
+        let first = try #require(store["in0001"])
+        #expect(first.id == "in0001" && first == store.inlets[0])
+        #expect(store["in9999"] == nil)
+    }
+
+    @Test func nearbyDrainsComeNearestFirstAndWithinTheRadius() throws {
+        let store = try Repo.inlets()
+        let mountainAvenue = Coordinate(lon: -74.672675, lat: 40.356792)       // where the first photograph was taken
+        let near = store.nearby(mountainAvenue, within: 60)
+        #expect(near.count >= 3)
+        #expect(near.map(\.distanceM) == near.map(\.distanceM).sorted())
+        #expect(near.allSatisfy { $0.distanceM <= 60 && $0.bearing >= 0 && $0.bearing < 360 })
+        #expect(near.first?.inlet.road == "Mountain Avenue")
+        #expect(store.nearby(mountainAvenue, within: 0.5).isEmpty)
+        let everything = store.inlets.filter { Geo.distance(mountainAvenue, $0.coordinate) <= 60 }
+        #expect(Set(everything.map(\.id)) == Set(near.map(\.inlet.id)))
+    }
+
+    @Test func nothingIsNearInTheMiddleOfTheOcean() throws {
+        #expect(try Repo.inlets().nearby(Coordinate(lon: -40, lat: 40), within: 500).isEmpty)
+    }
+
+    @Test func siblingsAreTheOtherDrainsCloseBy() throws {
+        let store = try Repo.inlets()
+        let rules = try Repo.rules()
+        let withSibling = try #require(store.inlets.first { !store.siblings(of: $0, within: rules.fence.siblingRadiusM).isEmpty })
+        let siblings = store.siblings(of: withSibling, within: rules.fence.siblingRadiusM)
+        #expect(siblings.allSatisfy { $0.inlet.id != withSibling.id && $0.distanceM <= rules.fence.siblingRadiusM })
+        let paired = store.inlets.filter { !store.siblings(of: $0, within: rules.fence.siblingRadiusM).isEmpty }.count
+        #expect(Double(paired) / Double(store.inlets.count) > 0.5, "more than half of all drains have a sibling, which is why a report asks which one it was")
+    }
+
+    @Test func aBundleThatMiscountsOrRepeatsAnIdIsRefused() throws {
+        let miscounted = Data(#"{"source":"s","licence":"l","retrieved":"r","count":2,"inlets":[{"id":"in0001","lon":0,"lat":0,"owner":"","road":"","type":"","grate":"","dup":0,"zone":""}]}"#.utf8)
+        #expect(throws: InletStore.Problem.countDiffers(stated: 2, found: 1)) { try InletStore(json: miscounted) }
+        let repeated = Data(#"{"source":"s","licence":"l","retrieved":"r","count":2,"inlets":[{"id":"in0001","lon":0,"lat":0,"owner":"","road":"","type":"","grate":"","dup":0,"zone":""},{"id":"in0001","lon":1,"lat":1,"owner":"","road":"","type":"","grate":"","dup":0,"zone":""}]}"#.utf8)
+        #expect(throws: InletStore.Problem.repeatedId("in0001")) { try InletStore(json: repeated) }
+    }
+
+    @Test func theZonesAreTheThreeOfTheFirstSeason() throws {
+        let zones = try Repo.zones()
+        #expect(zones.zones.map(\.id) == ["west", "downtown", "campus"])
+        #expect(zones.zone(id: "campus")?.owners.contains("Private") == true)
+        #expect(zones.zone(id: "west")?.owners.contains("Private") == false)
+        #expect(zones.zone(id: "nowhere") == nil)
+    }
+
+    @Test("the app's own polygon test puts every drain in the zone the pipeline gave it")
+    func everyDrainLiesInItsZone() throws {
+        let store = try Repo.inlets()
+        let zones = try Repo.zones()
+        let summary = try InletSummary.read()
+        var disagreements: [String] = []
+        for inlet in store.inlets where (zones.zone(containing: inlet.coordinate)?.id ?? "") != inlet.zone {
+            disagreements.append(inlet.id)
+        }
+        #expect(disagreements.isEmpty, "these drains fall elsewhere: \(disagreements.prefix(5))")
+        for zone in zones.zones {
+            #expect(store.inlets.filter { $0.zone == zone.id }.count == summary.zones[zone.id]?.inlets)
+        }
+    }
+
+    @Test func drainsCanBeCaughtWhereTheZoneIsOnAndAdmitsTheOwner() throws {
+        let store = try Repo.inlets()
+        let zones = try Repo.zones()
+        let summary = try InletSummary.read()
+        #expect(store.inlets.filter { zones.canBeCaught($0, on: "2026-10-12") }.count == summary.playable)
+        #expect(store.inlets.filter { zones.canBeCaught($0, on: "2026-10-11") }.isEmpty, "the day before the zones open nothing can be caught")
+        for zone in zones.zones {
+            #expect(store.inlets.filter { $0.zone == zone.id && zones.canBeCaught($0, on: "2026-11-10") }.count == summary.zones[zone.id]?.playable)
+        }
+        let privateDowntown = try #require(store.inlets.first { $0.zone == "downtown" && $0.owner == "Private" })
+        #expect(!zones.canBeCaught(privateDowntown, on: "2026-11-10"))
+        let privateCampus = try #require(store.inlets.first { $0.zone == "campus" && $0.owner == "Private" })
+        #expect(zones.canBeCaught(privateCampus, on: "2026-11-10"))
+        let outside = try #require(store.inlets.first { $0.zone.isEmpty })
+        #expect(!zones.canBeCaught(outside, on: "2026-11-10"))
+    }
+
+    @Test func aZoneWithAnEndCloses() {
+        let zone = Zone(id: "z", name: "Z", activeFrom: "2026-10-12", activeTo: "2026-12-07", owners: ["Municipality"], polygons: [])
+        #expect(!zone.isActive(on: "2026-10-11") && zone.isActive(on: "2026-10-12") && zone.isActive(on: "2026-12-07") && !zone.isActive(on: "2026-12-08"))
+    }
+
+    @Test func aZonesFileWithAnUnknownShapeIsRefused() {
+        let line = Data(#"{"features":[{"properties":{"id":"z","name":"Z","active_from":"2026-10-12","active_to":null,"owners":[]},"geometry":{"type":"LineString","coordinates":[[0,0],[1,1]]}}]}"#.utf8)
+        #expect(throws: ZoneStore.Problem.unknownGeometry("LineString")) { try ZoneStore(geojson: line) }
+    }
+
+    @Test func aMultiPolygonZoneIsRead() throws {
+        let multi = Data(#"{"features":[{"properties":{"id":"z","name":"Z","active_from":"2026-10-12","active_to":"2026-12-07","owners":["State"]},"geometry":{"type":"MultiPolygon","coordinates":[[[[0,0],[1,0],[1,1],[0,1],[0,0]]],[[[5,5],[6,5],[6,6],[5,6],[5,5]]]]}}]}"#.utf8)
+        let zone = try #require(try ZoneStore(geojson: multi).zones.first)
+        #expect(zone.contains(Coordinate(lon: 0.5, lat: 0.5)) && zone.contains(Coordinate(lon: 5.5, lat: 5.5)) && !zone.contains(Coordinate(lon: 3, lat: 3)))
+        #expect(zone.activeTo == "2026-12-07")
+    }
+
+    @Test func theRulesFileReadsAsWritten() throws {
+        let rules = try Repo.rules()
+        #expect(rules.timezone == "America/New_York")
+        #expect(rules.tiers.map(\.tier) == [0, 1, 2, 3])
+        #expect(rules.tiers.map(\.points) == [2, 10, 20, 30])
+        #expect(rules.fence.radiusM == 20 && rules.fence.serverMaxDistanceM == 50)
+        #expect(rules.throwing.count == 3)
+    }
+}
