@@ -1,0 +1,6 @@
+{
+  "name": "infrastructurego-web",
+  "private": true,
+  "type": "module",
+  "description": "The town's map of InfrastructureGO. No package is installed; this file only tells node that the scripts are modules."
+}

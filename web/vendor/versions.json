@@ -1,0 +1,7 @@
+{
+ "about": "Libraries kept in this folder so that the page needs no third party server for its code. A file is replaced only together with its line here, and web/tests/vendor.test.js checks the hashes.",
+ "files": [
+  {"file": "maplibre-gl.js", "name": "MapLibre GL JS", "version": "5.24.0", "licence": "BSD-3-Clause, see maplibre-gl.LICENSE.txt", "source": "https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js", "retrieved": "2026-10-11", "sha256": "45a9b07a9189ce56054c620a947ccf41e291e58c95e9b61533b740aaa65ee5cb"},
+  {"file": "maplibre-gl.css", "name": "MapLibre GL JS", "version": "5.24.0", "licence": "BSD-3-Clause, see maplibre-gl.LICENSE.txt", "source": "https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css", "retrieved": "2026-10-11", "sha256": "ab1e70d59ec40465bae7e7030da2f3ccf28133fd502e62bd598eefbadfd7a732"}
+ ]
+}

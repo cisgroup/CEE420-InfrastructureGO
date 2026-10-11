@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>InfrastructureGO, the storm drains of Princeton</title>
+  <link rel="stylesheet" href="vendor/maplibre-gl.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="map" aria-label="Map of Princeton's storm drains"></div>
+
+  <section id="panel" aria-live="polite">
+    <h1>InfrastructureGO</h1>
+    <p id="lead">The storm drains of Princeton and where the game is switched on.</p>
+    <p id="status">Loading the drains.</p>
+    <table id="zones" hidden>
+      <thead><tr><th scope="col">Zone</th><th scope="col">Drains in the game</th><th scope="col">All drains</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <ul id="legend" hidden>
+      <li><span class="dot catchable"></span>A drain that can be caught</li>
+      <li><span class="dot resting"></span>A drain in a zone that is not in the game</li>
+      <li><span class="dot outside"></span>A drain outside the zones</li>
+    </ul>
+    <p id="reports">No reports yet. When the game runs, this map shows what residents reported on a day. Resident reports are not inspections.</p>
+  </section>
+
+  <footer id="credit"></footer>
+
+  <script src="vendor/maplibre-gl.js"></script>
+  <script type="module" src="map.js"></script>
+</body>
+</html>
