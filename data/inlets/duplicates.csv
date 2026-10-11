@@ -1,0 +1,17 @@
+inlet_id,fid,lon,lat,inlet_type,owner_type,road_name,grate_design,distance_m
+in1359,3623,-74.6729474,40.3423328,,State,Stockton Street,,0.5790000
+in1495,4201,-74.6701206,40.3517905,Type B or C - Combination Inlet,Municipality,Cleveland Lane,NJDOT Bicycle Safe Grate,0.0000000
+in2167,4251,-74.6622709,40.3556123,,Municipality,Witherspoon Street,,0.8570000
+in2221,2943,-74.6618982,40.3817989,,State,Arreton Road,,0.5740000
+in2371,3248,-74.6600820,40.3440129,Type B or C - Combination Inlet,Municipality,University Place,NJDOT Bicycle Safe Grate,0.3550000
+in2401,3254,-74.6598730,40.3440847,Type B or C - Combination Inlet,Municipality,University Place,NJDOT Bicycle Safe Grate,0.5900000
+in2414,444,-74.6597921,40.3713821,Type B or C - Combination Inlet,Municipality,Mount Lucas Road,NJDOT Bicycle Safe Grate,0.4540000
+in2626,3972,-74.6571237,40.3676372,Type B or C - Combination Inlet,Municipality,Ewing Street,NJDOT Bicycle Safe Grate,0.4630000
+in3196,2061,-74.6518469,40.3583920,,Private,,,0.0000000
+in3196,2067,-74.6518469,40.3583920,,Private,,,0.0000000
+in3297,4220,-74.6506533,40.3312487,,Other Municipality,Alexander Road,,0.4770000
+in3636,3518,-74.6454840,40.3545916,,Private,,,0.9410000
+in3888,3121,-74.6397064,40.3475442,,Private,Harrison Lane,,0.0000000
+in3957,3980,-74.6386401,40.3675128,Type B or C - Combination Inlet,Municipality,Overbrook Drive,NJDOT Bicycle Safe Grate,0.0000000
+in3961,3981,-74.6386183,40.3675701,Type B or C - Combination Inlet,Municipality,Overbrook Drive,Not Compliant,0.0000000
+in4431,3714,-74.6231184,40.3840371,,County,River Road,,0.3740000

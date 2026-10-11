@@ -1,0 +1,119 @@
+{
+ "about": "Counts from the town's stormwater inlet layer, written by pipeline/igo/inlets.py. Documents quote these numbers and type none.",
+ "layer": "princeton_municipal_2026-09-11.gpkg",
+ "snapshot": "2026-09-11",
+ "provenance": {
+  "licence": "Public record (OPRA), licence undeclared by the publisher",
+  "native_crs": "EPSG:6527",
+  "retrieved": "2026-09-11",
+  "source": "Municipality of Princeton, ArcGIS Online open data, Stormwater_Inlets"
+ },
+ "coordinates": {
+  "about": "Longitude and latitude are WGS 84, taken from the geometry with a named datum operation. The town's own Longitude and Latitude columns are never copied and serve as the check.",
+  "operation": "EPSG:1515 NAD83 to WGS 84 (5)",
+  "rows_compared_with_the_towns_columns": 4349,
+  "median_difference_from_the_towns_columns_cm": 1.17,
+  "largest_difference_from_the_towns_columns_cm": 1.24,
+  "shift_a_plain_reprojection_would_drop_m": 0.913,
+  "season_epoch": 2026.8,
+  "distance_to_itrf2014_at_the_season_epoch_m": 0.539
+ },
+ "rule": {
+  "id_order": "geometry easting, geometry northing (both rounded to 0.01 ft), inlet type with untyped last, layer row number",
+  "duplicate_link_m": 1.0,
+  "column_tolerance_ft": 1.0
+ },
+ "layer_rows": 4455,
+ "inlets": 4439,
+ "collapsed_rows": 16,
+ "linked_pairs_within_link": 17,
+ "groups_of_more_than_one": 15,
+ "rows_at_identical_positions": 11,
+ "text_values_cleaned": {
+  "Inlet_Type": 7,
+  "Owner_Type": 0,
+  "Road_Name": 0,
+  "Grate_Design": 6,
+  "Catch_Basin_Present": 0,
+  "inspected": 0
+ },
+ "coord_columns_missing": 75,
+ "coord_columns_disagree": 31,
+ "coord_columns_largest_offset_ft": 223.2,
+ "outside_boundary": 80,
+ "without_road_name": 452,
+ "without_inlet_type": 1110,
+ "with_inspection_date": 3329,
+ "inspection_first": "2023-06-23",
+ "inspection_last": "2024-06-26",
+ "by_owner": {
+  "County": 130,
+  "Municipality": 3280,
+  "Other Municipality": 88,
+  "Private": 765,
+  "State": 176
+ },
+ "by_inlet_type": {
+  "(none)": 1110,
+  "Combination": 2,
+  "Curb Cut": 6,
+  "Other": 1,
+  "Trench Drain": 12,
+  "Type A - Single Grate Inlet": 624,
+  "Type B or C - Combination Inlet": 2551,
+  "Type D - Barrier Curb Combination Inlet": 1,
+  "Type E - Dual Grate Inlet": 126,
+  "Unknown": 6
+ },
+ "by_grate_design": {
+  "(none)": 1110,
+  "Compliant": 72,
+  "NJDOT Bicycle Safe Grate": 2898,
+  "No Grate": 14,
+  "Not Compliant": 329,
+  "Yes": 16
+ },
+ "spacing": {
+  "median_nearest_m": 9.69,
+  "share_within_5_m": 0.0795,
+  "share_within_10_m": 0.522,
+  "share_within_15_m": 0.7353
+ },
+ "spacing_of_layer_rows": {
+  "median_nearest_m": 9.66,
+  "share_within_5_m": 0.086,
+  "share_within_10_m": 0.5248,
+  "share_within_15_m": 0.7367
+ },
+ "zones": {
+  "west": {
+   "inlets": 155,
+   "playable": 143,
+   "by_owner": {
+    "Municipality": 116,
+    "Private": 12,
+    "State": 27
+   }
+  },
+  "downtown": {
+   "inlets": 415,
+   "playable": 318,
+   "by_owner": {
+    "Municipality": 282,
+    "Private": 97,
+    "State": 36
+   }
+  },
+  "campus": {
+   "inlets": 245,
+   "playable": 245,
+   "by_owner": {
+    "County": 17,
+    "Municipality": 96,
+    "Private": 132
+   }
+  }
+ },
+ "in_a_zone": 815,
+ "playable": 706
+}
