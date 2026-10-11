@@ -43,7 +43,7 @@ test("the page counts drains the way the pipeline did", () => {
 });
 
 test("nothing can be caught the day before the zones open", () => {
-  const rows = logic.zoneCounts(inlets, zones, "2026-10-11");
+  const rows = logic.zoneCounts(inlets, zones, "2026-10-10");
   assert.ok(rows.every((r) => r.catchable === 0 && r.active === false && r.drains > 0));
 });
 
@@ -78,7 +78,7 @@ test("the popup speaks in plain sentences without a dash", () => {
   assert.ok(row.lines.includes("Owned by the town."));
   assert.equal(row.lines.at(-1), "Can be caught, in the zone Western streets.");
   const early = logic.describeDrain(find("in1342"), byId, "2026-10-01");
-  assert.equal(early.lines.at(-1), "In the zone Western streets, which opens on 2026-10-12.");
+  assert.equal(early.lines.at(-1), "In the zone Western streets, which opens on 2026-10-11.");
   const outside = logic.describeDrain(find("in0001"), byId, "2026-10-12");
   assert.equal(outside.lines.at(-1), "Outside the play zones.");
   const privateDowntown = ready.features.find((f) => f.properties.zone === "downtown" && f.properties.owner === "Private").properties;

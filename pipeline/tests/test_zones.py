@@ -60,8 +60,8 @@ def test_copies_are_the_source_byte_for_byte():
 
 def test_activity_by_date(play_zones):
     west = play_zones.iloc[0]
-    assert not zones.is_active(west, date(2026, 10, 11))
-    assert zones.is_active(west, date(2026, 10, 12))
+    assert not zones.is_active(west, date(2026, 10, 10))
+    assert zones.is_active(west, date(2026, 10, 11))
     assert zones.is_active(west, date(2027, 3, 1))
     closed = west.copy()
     closed["active_to"] = "2026-12-07"

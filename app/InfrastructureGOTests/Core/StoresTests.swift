@@ -138,7 +138,7 @@ struct StoresTests {
         let summary = try InletSummary.read()
         #expect(store.inlets.filter { zones.canBeCaught($0, on: "2026-10-12") }.count == summary.playable)
         #expect(store.heads.filter { zones.canBeCaught($0, on: "2026-10-12") }.count == summary.playableSites)
-        #expect(store.inlets.filter { zones.canBeCaught($0, on: "2026-10-11") }.isEmpty, "the day before the zones open nothing can be caught")
+        #expect(store.inlets.filter { zones.canBeCaught($0, on: "2026-10-10") }.isEmpty, "the day before the zones open nothing can be caught")
         for zone in zones.zones {
             #expect(store.inlets.filter { $0.zone == zone.id && zones.canBeCaught($0, on: "2026-11-10") }.count == summary.zones[zone.id]?.playable)
             #expect(store.heads.filter { $0.zone == zone.id && zones.canBeCaught($0, on: "2026-11-10") }.count == summary.zones[zone.id]?.playableSites)

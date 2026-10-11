@@ -6,11 +6,11 @@
  "licence": "MIT, as the code of this repository",
  "retrieved": "2026-10-11",
  "features": [
-  {"type": "Feature", "properties": {"id": "west", "name": "Western streets", "active_from": "2026-10-12", "active_to": null, "owners": ["Municipality", "County", "State", "Other Municipality"]},
+  {"type": "Feature", "properties": {"id": "west", "name": "Western streets", "active_from": "2026-10-11", "active_to": null, "owners": ["Municipality", "County", "State", "Other Municipality"]},
    "geometry": {"type": "Polygon", "coordinates": [[[-74.6812, 40.3528], [-74.6812, 40.3562], [-74.6778, 40.3586], [-74.6690, 40.3590], [-74.6672, 40.3590], [-74.6680, 40.3572], [-74.6688, 40.3556], [-74.6685, 40.3545], [-74.6670, 40.3531], [-74.6657, 40.3511], [-74.6647, 40.3497], [-74.6638, 40.3480], [-74.6652, 40.3476], [-74.6668, 40.3503], [-74.6690, 40.3524], [-74.6720, 40.3521], [-74.6750, 40.3514], [-74.6790, 40.3503], [-74.6812, 40.3528]]]}},
-  {"type": "Feature", "properties": {"id": "downtown", "name": "Downtown", "active_from": "2026-10-12", "active_to": null, "owners": ["Municipality", "County", "State", "Other Municipality"]},
+  {"type": "Feature", "properties": {"id": "downtown", "name": "Downtown", "active_from": "2026-10-11", "active_to": null, "owners": ["Municipality", "County", "State", "Other Municipality"]},
    "geometry": {"type": "Polygon", "coordinates": [[[-74.6638, 40.3480], [-74.6647, 40.3497], [-74.6657, 40.3511], [-74.6670, 40.3531], [-74.6685, 40.3545], [-74.6688, 40.3556], [-74.6680, 40.3572], [-74.6672, 40.3590], [-74.6690, 40.3590], [-74.6666, 40.3605], [-74.6659, 40.3612], [-74.6657, 40.3621], [-74.6654, 40.3630], [-74.6625, 40.3630], [-74.6633, 40.3602], [-74.6623, 40.3579], [-74.6614, 40.3557], [-74.6603, 40.3533], [-74.6603, 40.3525], [-74.6585, 40.3532], [-74.6556, 40.3543], [-74.6545, 40.3527], [-74.6535, 40.3511], [-74.6555, 40.3505], [-74.6586, 40.3496], [-74.6617, 40.3487], [-74.6638, 40.3480]]]}},
-  {"type": "Feature", "properties": {"id": "campus", "name": "Campus", "active_from": "2026-10-12", "active_to": null, "owners": ["Municipality", "County", "State", "Other Municipality", "Private"]},
+  {"type": "Feature", "properties": {"id": "campus", "name": "Campus", "active_from": "2026-10-11", "active_to": null, "owners": ["Municipality", "County", "State", "Other Municipality", "Private"]},
    "geometry": {"type": "Polygon", "coordinates": [[[-74.6638, 40.3480], [-74.6617, 40.3487], [-74.6586, 40.3496], [-74.6555, 40.3505], [-74.6535, 40.3511], [-74.6510, 40.3519], [-74.6493, 40.3524], [-74.6470, 40.3500], [-74.6460, 40.3481], [-74.6446, 40.3465], [-74.6430, 40.3443], [-74.6462, 40.3433], [-74.6474, 40.3427], [-74.6481, 40.3419], [-74.6495, 40.3408], [-74.6510, 40.3397], [-74.6541, 40.3389], [-74.6551, 40.3384], [-74.6578, 40.3372], [-74.6604, 40.3415], [-74.6615, 40.3430], [-74.6610, 40.3447], [-74.6617, 40.3460], [-74.6625, 40.3470], [-74.6638, 40.3480]]]}}
  ]
 }
