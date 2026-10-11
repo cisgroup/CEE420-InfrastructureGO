@@ -1,7 +1,7 @@
 # InfrastructureGO. Each target is one step and says what it writes. Run make with no target to list them.
 
 .DEFAULT_GOAL := help
-.PHONY: help sync inlets facts convert match check test swift web map smoke verify
+.PHONY: help sync inlets facts convert match loop check test swift web map smoke verify
 
 help:    ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-9s %s\n", $$1, $$2}'
@@ -21,6 +21,9 @@ convert: ## turn the phone's files in data/private/originals into upright sRGB J
 
 match:   ## say which drain each photograph shows, and draw a sheet for every stop that needs a decision
 	uv run python -m igo.match --sheets
+
+loop:    ## plan the walk of an outing, for example make loop ARGS="--zone west --count 35"
+	uv run python -m igo.loops $(ARGS)
 
 check:   ## derive everything again and compare with the files on disk, then check the game's data and the shared cases
 	uv run python -m igo.inlets --check
