@@ -21,12 +21,19 @@
  "rule": {
   "id_order": "geometry easting, geometry northing (both rounded to 0.01 ft), inlet type with untyped last, layer row number",
   "duplicate_link_m": 1.0,
+  "site_link_m": 2.5,
   "column_tolerance_ft": 1.0
  },
  "layer_rows": 4455,
  "inlets": 4439,
  "collapsed_rows": 16,
  "linked_pairs_within_link": 17,
+ "sites": 4344,
+ "sites_of_more_than_one_inlet": 89,
+ "inlets_in_sites_of_more_than_one": 184,
+ "largest_site_inlets": 3,
+ "widest_site_m": 4.5,
+ "sites_across_two_zones": 0,
  "groups_of_more_than_one": 15,
  "rows_at_identical_positions": 11,
  "text_values_cleaned": {
@@ -87,26 +94,32 @@
  },
  "zones": {
   "west": {
-   "inlets": 155,
+   "inlets": 153,
    "playable": 143,
+   "sites": 147,
+   "playable_sites": 138,
    "by_owner": {
     "Municipality": 116,
-    "Private": 12,
+    "Private": 10,
     "State": 27
    }
   },
   "downtown": {
-   "inlets": 415,
+   "inlets": 417,
    "playable": 318,
+   "sites": 401,
+   "playable_sites": 306,
    "by_owner": {
     "Municipality": 282,
-    "Private": 97,
+    "Private": 99,
     "State": 36
    }
   },
   "campus": {
    "inlets": 245,
    "playable": 245,
+   "sites": 242,
+   "playable_sites": 242,
    "by_owner": {
     "County": 17,
     "Municipality": 96,
@@ -115,5 +128,6 @@
   }
  },
  "in_a_zone": 815,
- "playable": 706
+ "playable": 706,
+ "playable_sites": 686
 }

@@ -28,6 +28,32 @@ def test_layer_counts(derived):
     assert s["text_values_cleaned"]["Grate_Design"] == 6
 
 
+def test_rows_of_grates_form_sites(derived):
+    """Grates that stand in a row along one kerb are one site, named after the first inlet of the row."""
+    s = derived.summary
+    table = derived.inlets
+    assert s["sites"] == 4344 and s["sites_of_more_than_one_inlet"] == 89 and s["inlets_in_sites_of_more_than_one"] == 184
+    assert s["largest_site_inlets"] == 3 and s["widest_site_m"] < 2 * inlets.SITE_LINK_M + 0.01
+    assert table["site"].nunique() == s["sites"]
+    assert set(table["site"]) <= set(table["inlet_id"])
+    assert (table["site"] <= table["inlet_id"]).all(), "a site is named after its first inlet"
+    heads = table[table["inlet_id"] == table["site"]]
+    assert len(heads) == s["sites"]
+    assert s["sites_across_two_zones"] == 0, "a zone edge cuts a row of grates in two, move the edge"
+    pardoe = table[table["site"] == "in1342"]
+    assert pardoe["inlet_id"].tolist() == ["in1342", "in1343", "in1344"] and set(pardoe["road_name"]) == {"Pardoe Road"}
+
+
+def test_inlets_of_different_sites_stand_apart(derived):
+    xy = np.c_[geo.metres(derived.inlets["lon"].to_numpy(), derived.inlets["lat"].to_numpy())]
+    site = derived.inlets["site"].to_numpy()
+    pairs = inlets.cKDTree(xy).query_pairs(r=inlets.SITE_LINK_M - 0.02, output_type="ndarray")
+    assert len(pairs) > 80
+    assert (site[pairs[:, 0]] == site[pairs[:, 1]]).all()
+    far = inlets.cKDTree(xy).query_pairs(r=inlets.SITE_LINK_M + 0.02, output_type="ndarray")
+    assert len(far) >= len(pairs)
+
+
 def test_owner_counts_cover_every_inlet(derived):
     by_owner = derived.summary["by_owner"]
     assert set(by_owner) == set(OWNER_TYPES)
@@ -140,6 +166,8 @@ def test_derived_files_share_one_id_set():
     assert seed["lon"].astype(float).tolist() == lon and seed["zone"].tolist() == table["zone"].tolist()
     assert [r["zone"] for r in app["inlets"]] == table["zone"].tolist()
     assert [f["properties"]["zone"] for f in web["features"]] == table["zone"].tolist()
+    assert [r["site"] for r in app["inlets"]] == table["site"].tolist() == seed["site"].tolist()
+    assert [f["properties"]["site"] for f in web["features"]] == table["site"].tolist()
 
 
 def test_every_derived_file_says_where_it_comes_from(layers):

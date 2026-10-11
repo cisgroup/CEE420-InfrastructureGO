@@ -25,7 +25,9 @@ def test_every_zone_holds_drains_that_can_be_caught(derived):
     for zone_id, counts in derived.summary["zones"].items():
         assert counts["inlets"] >= 50, f"zone {zone_id} holds almost no inlet"
         assert 0 < counts["playable"] <= counts["inlets"]
+        assert 0 < counts["playable_sites"] <= counts["sites"] <= counts["inlets"]
     assert derived.summary["playable"] == sum(z["playable"] for z in derived.summary["zones"].values())
+    assert derived.summary["playable_sites"] == sum(z["playable_sites"] for z in derived.summary["zones"].values())
 
 
 def test_inlet_zones_are_zone_ids_or_empty(derived, play_zones):

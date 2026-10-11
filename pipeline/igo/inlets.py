@@ -5,6 +5,11 @@ the points that lie within a metre of each other into one inlet, and writes the 
 them, so that the pipeline, the app, the backend and the web map agree on every id. The pinned file in data/town is
 the reference and is never fetched again into this scheme.
 
+The layer draws every grate as a point of its own, also where two or three grates stand in a row along one kerb.
+Such a row is one drain to anyone who stands in front of it, one photograph shows all of it, and a phone cannot
+tell its grates apart. So every inlet also gets a site, the id of the first inlet of its row, and the game, the
+matching of photographs and the evaluation count by site. An inlet that stands alone is its own site.
+
     uv run python -m igo.inlets            writes every derived file and prints the counts
     uv run python -m igo.inlets --check    derives again and compares with the files on disk
 """
@@ -29,6 +34,7 @@ from igo import zones as zones_module
 
 TEXT_COLUMNS = ("Inlet_Type", "Owner_Type", "Road_Name", "Grate_Design", "Catch_Basin_Present", "inspected")
 DUPLICATE_LINK_M = 1.0        # points closer than this are one inlet drawn twice
+SITE_LINK_M = 2.5             # inlets closer than this are the grates of one row along a kerb, one site
 COLUMN_TOLERANCE_FT = 1.0     # the Easting and Northing columns may differ from the geometry by this much
 BOUNDARY_GEOGRAPHIC = "EPSG:4269"   # NAD83 longitude and latitude, the boundary layer's own datum
 SEASON_EPOCH = 2026.8         # the decimal year of the first season, for the note on plate motion
@@ -41,10 +47,10 @@ WEB_GEOJSON = ROOT / "web" / "data" / "inlets.geojson"
 SEED_CSV = ROOT / "backend" / "seed" / "inlets.csv"
 
 CSV_COLUMNS = ["inlet_id", "fid", "lon", "lat", "inlet_type", "owner_type", "road_name", "grate_design",
-               "catch_basin_present", "inspected", "coord_hash", "duplicates", "outside_boundary", "zone",
+               "catch_basin_present", "inspected", "coord_hash", "duplicates", "site", "outside_boundary", "zone",
                "coord_columns_missing", "coord_columns_disagree", "snapshot"]
 SEED_COLUMNS = ["inlet_id", "lon", "lat", "inlet_type", "owner_type", "road_name", "grate_design",
-                "catch_basin_present", "inspected", "duplicates", "zone", "snapshot"]
+                "catch_basin_present", "inspected", "duplicates", "site", "zone", "snapshot"]
 TWIN_COLUMNS = ["inlet_id", "fid", "lon", "lat", "inlet_type", "owner_type", "road_name", "grate_design", "distance_m"]
 
 
@@ -153,6 +159,11 @@ def derive(raw, boundary, zones, provenance=None):
     kept["duplicates"] = (kept["group"].map(g.groupby("group").size()) - 1).astype(int)
     kept["snapshot"] = SNAPSHOT
     id_of_position = dict(zip(kept["position"], kept["inlet_id"]))
+    kept_xy = xy[kept_mask]
+    row, site_pairs = components(kept_xy, SITE_LINK_M)
+    kept["site"] = kept.groupby(row)["inlet_id"].transform("min")        # ids count up in the order of the rows, so the smallest is the first
+    widths = [float(np.hypot(*(kept_xy[members][:, None, :] - kept_xy[members][None, :, :]).transpose(2, 0, 1)).max())
+              for members in (np.flatnonzero(row == r) for r in np.flatnonzero(np.bincount(row) > 1))]
 
     twins = g[~kept_mask].copy()
     twins["inlet_id"] = twins["keeper"].map(id_of_position)
@@ -165,6 +176,9 @@ def derive(raw, boundary, zones, provenance=None):
     twins = pd.DataFrame(twins.rename(columns=names)[TWIN_COLUMNS])
 
     exact = g.duplicated(subset=["x", "y"], keep=False)
+    head = (inlets["inlet_id"] == inlets["site"]).to_numpy()
+    site_size = inlets.groupby("site")["inlet_id"].transform("size").to_numpy()
+    zones_of_site = inlets.groupby("site")["zone"].nunique()
     plain_lon, plain_lat = geo.nad83_geographic(g["x"].to_numpy(), g["y"].to_numpy())
     comparable = (~missing & ~disagree & g["Longitude"].notna().to_numpy())
     against_town = geo.offset_m(lon[comparable], lat[comparable], g["Longitude"].to_numpy()[comparable], g["Latitude"].to_numpy()[comparable])
@@ -187,6 +201,8 @@ def derive(raw, boundary, zones, provenance=None):
         by_zone[zone_id] = {
             "inlets": int(inside.sum()),
             "playable": int((inside & playable).sum()),
+            "sites": int((inside & head).sum()),
+            "playable_sites": int((inside & head & playable).sum()),
             "by_owner": {k: int(v) for k, v in inlets.loc[inside, "owner_type"].value_counts().sort_index().items()},
         }
     summary = {
@@ -198,12 +214,19 @@ def derive(raw, boundary, zones, provenance=None):
         "rule": {
             "id_order": "geometry easting, geometry northing (both rounded to 0.01 ft), inlet type with untyped last, layer row number",
             "duplicate_link_m": DUPLICATE_LINK_M,
+            "site_link_m": SITE_LINK_M,
             "column_tolerance_ft": COLUMN_TOLERANCE_FT,
         },
         "layer_rows": n,
         "inlets": len(inlets),
         "collapsed_rows": len(twins),
         "linked_pairs_within_link": int(linked_pairs),
+        "sites": int(head.sum()),
+        "sites_of_more_than_one_inlet": int((head & (site_size > 1)).sum()),
+        "inlets_in_sites_of_more_than_one": int((site_size > 1).sum()),
+        "largest_site_inlets": int(site_size.max()),
+        "widest_site_m": round(max(widths), 1) if widths else 0.0,
+        "sites_across_two_zones": int((zones_of_site > 1).sum()),
         "groups_of_more_than_one": int((g.groupby("group").size() > 1).sum()),
         "rows_at_identical_positions": int(exact.sum()),
         "text_values_cleaned": cleaned,
@@ -224,6 +247,7 @@ def derive(raw, boundary, zones, provenance=None):
         "zones": by_zone,
         "in_a_zone": int((inlets["zone"] != "").sum()),
         "playable": int(playable.sum()),
+        "playable_sites": int((head & playable).sum()),
     }
     return Derived(inlets=inlets, twins=twins, summary=summary)
 
@@ -259,7 +283,7 @@ def app_json_text(inlets, provenance):
     rows = []
     for r in inlets.itertuples(index=False):
         row = {"id": r.inlet_id, "lon": r.lon, "lat": r.lat, "owner": r.owner_type, "road": r.road_name,
-               "type": r.inlet_type, "grate": r.grate_design, "dup": int(r.duplicates), "zone": r.zone}
+               "type": r.inlet_type, "grate": r.grate_design, "dup": int(r.duplicates), "site": r.site, "zone": r.zone}
         rows.append("  " + json.dumps(row, ensure_ascii=False, separators=(",", ":")))
     lines = ["{"] + [f" {json.dumps(k)}: {json.dumps(v)}," for k, v in head.items()]
     return "\n".join(lines + [' "inlets": [', ",\n".join(rows), " ]", "}"]) + "\n"
@@ -271,7 +295,7 @@ def web_geojson_text(inlets, provenance):
     feats = []
     for r in inlets.itertuples(index=False):
         props = {"id": r.inlet_id, "owner": r.owner_type, "road": r.road_name, "type": r.inlet_type,
-                 "grate": r.grate_design, "dup": int(r.duplicates), "zone": r.zone}
+                 "grate": r.grate_design, "dup": int(r.duplicates), "site": r.site, "zone": r.zone}
         feat = {"type": "Feature", "properties": props, "geometry": {"type": "Point", "coordinates": [r.lon, r.lat]}}
         feats.append("  " + json.dumps(feat, ensure_ascii=False, separators=(",", ":")))
     lines = ["{", ' "type": "FeatureCollection",'] + [f" {json.dumps(k)}: {json.dumps(v)}," for k, v in head.items()]
@@ -322,9 +346,11 @@ def main(argv=None):
     print(f"{s['coord_columns_missing']} rows without coordinate columns, {s['coord_columns_disagree']} whose columns disagree with the geometry, "
           f"the worst by {s['coord_columns_largest_offset_ft']} ft")
     print(f"{s['outside_boundary']} inlets outside the boundary, {s['without_road_name']} without a road name, {s['without_inlet_type']} without a type")
+    print(f"{s['sites']} sites, {s['sites_of_more_than_one_inlet']} of them rows of grates within {SITE_LINK_M:g} m holding {s['inlets_in_sites_of_more_than_one']} inlets, "
+          f"the widest {s['widest_site_m']} m")
     print(f"median distance to the nearest inlet {s['spacing']['median_nearest_m']} m")
     for zone_id, z in s["zones"].items():
-        print(f"zone {zone_id}: {z['inlets']} inlets, {z['playable']} of them playable")
+        print(f"zone {zone_id}: {z['inlets']} inlets at {z['sites']} sites, {z['playable_sites']} sites playable")
     for path in list(files) + copies:
         print("wrote", shown(path), f"({path.stat().st_size / 1024:.0f} KB)")
     return 0
