@@ -27,6 +27,8 @@ skip() {
 }
 
 run "derived files" uv run python -m igo.inlets --check
+run "fact cards" uv run python -m igo.facts --check
+run "game data and cases" uv run python -m igo.game
 run "pipeline tests" uv run pytest -rs
 if [ -f app/Package.swift ]; then
   run "game rules in swift" swift test --package-path app

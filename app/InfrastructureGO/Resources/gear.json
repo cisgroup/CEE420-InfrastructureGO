@@ -1,0 +1,26 @@
+{
+ "version": 1,
+ "about": "The story of the first role. Points are experience, a level is reached at its points, and each level from the second on hands the apprentice one piece of gear with a fact from facts.json. An unlock changes play and is named here so that the app can ask for it by name.",
+ "role": {"id": "apprentice", "name": "Apprentice at Princeton Public Works"},
+ "levels": [
+  {"level": 1, "points": 0, "gear": null},
+  {"level": 2, "points": 100, "gear": "hard_hat"},
+  {"level": 3, "points": 300, "gear": "vest"},
+  {"level": 4, "points": 600, "gear": "boots"},
+  {"level": 5, "points": 1000, "gear": "rake"},
+  {"level": 6, "points": 1500, "gear": "flashlight"},
+  {"level": 7, "points": 2200, "gear": "field_tablet"},
+  {"level": 8, "points": 3000, "gear": "survey_wheel"},
+  {"level": 9, "points": 4000, "gear": "key_ring"}
+ ],
+ "gear": [
+  {"id": "hard_hat", "name": "Hard hat", "fact_id": "drains_on_the_map", "unlock": null},
+  {"id": "vest", "name": "High visibility vest", "fact_id": "who_owns_them", "unlock": null},
+  {"id": "boots", "name": "Boots", "fact_id": "bicycle_safe", "unlock": null},
+  {"id": "rake", "name": "Rake", "fact_id": "check_before_and_after", "unlock": null},
+  {"id": "flashlight", "name": "Flashlight", "fact_id": "drains_like_company", "unlock": null},
+  {"id": "field_tablet", "name": "Field tablet", "fact_id": "last_inspection", "unlock": "history"},
+  {"id": "survey_wheel", "name": "Survey wheel", "fact_id": "why_it_matters", "unlock": "wide_radius"},
+  {"id": "key_ring", "name": "The crew's key ring", "fact_id": null, "unlock": null}
+ ]
+}

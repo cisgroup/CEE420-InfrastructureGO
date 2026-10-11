@@ -1,0 +1,13 @@
+{
+ "version": 1,
+ "about": "The fact cards of the game, written by pipeline/igo/facts.py. Every number comes from data/inlets/summary.json and every fact names its source and the day the source was read.",
+ "facts": [
+  {"id": "drains_on_the_map", "text": "The town's map shows 4,439 storm drains.", "source": "Municipality of Princeton, stormwater inlet layer, snapshot of 2026-09-11", "retrieved": "2026-09-11"},
+  {"id": "who_owns_them", "text": "The town itself owns 3,280 of the drains on its map. The others belong to the county, the State, neighbouring towns and private owners.", "source": "Municipality of Princeton, stormwater inlet layer, snapshot of 2026-09-11", "retrieved": "2026-09-11"},
+  {"id": "bicycle_safe", "text": "2,898 drains in town carry the grate the State calls bicycle safe.", "source": "Municipality of Princeton, stormwater inlet layer, snapshot of 2026-09-11", "retrieved": "2026-09-11"},
+  {"id": "last_inspection", "text": "The town inspected 3,329 drains between June 2023 and June 2024.", "source": "Municipality of Princeton, stormwater inlet layer, snapshot of 2026-09-11", "retrieved": "2026-09-11"},
+  {"id": "drains_like_company", "text": "Drains like company. 52 of every hundred drains in town have another drain within ten metres.", "source": "Municipality of Princeton, stormwater inlet layer, snapshot of 2026-09-11", "retrieved": "2026-09-11"},
+  {"id": "check_before_and_after", "text": "Princeton's Adopt a Drain volunteers check their drain every couple of weeks, before and after a storm.", "source": "Municipality of Princeton, Adopt a Drain flyer, princetonnj.gov/adoptadrain", "retrieved": "2026-09-16"},
+  {"id": "why_it_matters", "text": "A clear drain helps prevent flooding on the road and keeps the waterways clean.", "source": "Municipality of Princeton, Adopt a Drain flyer, princetonnj.gov/adoptadrain", "retrieved": "2026-09-16"}
+ ]
+}

@@ -1,7 +1,7 @@
 # InfrastructureGO. Each target is one step and says what it writes. Run make with no target to list them.
 
 .DEFAULT_GOAL := help
-.PHONY: help sync inlets check test verify
+.PHONY: help sync inlets facts check test swift verify
 
 help:    ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-9s %s\n", $$1, $$2}'
@@ -12,11 +12,19 @@ sync:    ## install the locked Python environment
 inlets:  ## derive the inlet ids, each inlet's zone and the files the app, the backend and the web map share
 	uv run python -m igo.inlets
 
-check:   ## derive again and compare with the files on disk, writing nothing
+facts:   ## write the game's fact cards from the counts of the inlets step
+	uv run python -m igo.facts
+
+check:   ## derive everything again and compare with the files on disk, then check the game's data and the shared cases
 	uv run python -m igo.inlets --check
+	uv run python -m igo.facts --check
+	uv run python -m igo.game
 
 test:    ## run the pipeline's tests
 	uv run pytest
+
+swift:   ## build the game rules in Swift and run their tests on the Mac, no simulator needed
+	swift test --package-path app
 
 verify:  ## run every local check and keep the output in build/
 	scripts/verify.sh
