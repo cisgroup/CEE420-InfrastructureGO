@@ -83,3 +83,8 @@ backend/supabase/.temp/
 *.env
 .DS_Store
 .pytest_cache/
+
+# InfrastructureGO: downloaded art, work files of the art scripts, and private backdrops of the simulator
+art/downloads/
+art/work/
+app/InfrastructureGO/Resources/Local/
