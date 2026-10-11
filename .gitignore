@@ -60,3 +60,26 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# InfrastructureGO: private material, generated data, environments and local configuration
+data/private/
+data/photos/
+data/cache/
+*.HEIC
+*.heic
+*.MOV
+*.mov
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+build/
+*.xcresult
+app/Config/Local.xcconfig
+web/config.js
+backend/.env
+backend/supabase/.temp/
+.env
+*.env
+.DS_Store
+.pytest_cache/
