@@ -6,6 +6,19 @@ struct RootView: View {
     @State private var tab = "map"
 
     var body: some View {
+        #if DEBUG
+        if let spike = game.opening.spike {
+            SpikeView(name: spike, freeze: game.opening.freeze)
+        } else {
+            game_
+        }
+        #else
+        game_
+        #endif
+    }
+
+    @ViewBuilder
+    private var game_: some View {
         if let problem = game.problem {
             ContentUnavailableView("The game cannot start", systemImage: "exclamationmark.triangle", description: Text(problem))
         } else {

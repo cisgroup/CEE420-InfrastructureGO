@@ -27,6 +27,8 @@ final class GameModel {
         var select: String?
         var encounter: String?
         var species: String?
+        var spike: String?
+        var freeze: String?
     }
 
     init() {
@@ -145,7 +147,7 @@ final class GameModel {
         stormOpen = asked.bool(forKey: "igo.storm")
         if let site = asked.string(forKey: "igo.stand"), let head = content?.inlets[site] { stand(at: head) }
         opening = Opening(tab: asked.string(forKey: "igo.tab"), select: asked.string(forKey: "igo.select"), encounter: asked.string(forKey: "igo.encounter"),
-                          species: asked.string(forKey: "igo.species"))
+                          species: asked.string(forKey: "igo.species"), spike: asked.string(forKey: "igo.spike"), freeze: asked.string(forKey: "igo.freeze"))
     }
     #endif
 }
