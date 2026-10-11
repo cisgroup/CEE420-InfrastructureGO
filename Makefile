@@ -1,7 +1,7 @@
 # InfrastructureGO. Each target is one step and says what it writes. Run make with no target to list them.
 
 .DEFAULT_GOAL := help
-.PHONY: help sync inlets facts check test swift verify
+.PHONY: help sync inlets facts convert match check test swift verify
 
 help:    ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-9s %s\n", $$1, $$2}'
@@ -14,6 +14,13 @@ inlets:  ## derive the inlet ids, each inlet's zone and the files the app, the b
 
 facts:   ## write the game's fact cards from the counts of the inlets step
 	uv run python -m igo.facts
+
+convert: ## turn the phone's files in data/private/originals into upright sRGB JPEGs without metadata and list the captures
+	uv run python -m igo.convert
+	uv run python -m igo.convert --check
+
+match:   ## say which drain each photograph shows, and draw a sheet for every stop that needs a decision
+	uv run python -m igo.match --sheets
 
 check:   ## derive everything again and compare with the files on disk, then check the game's data and the shared cases
 	uv run python -m igo.inlets --check

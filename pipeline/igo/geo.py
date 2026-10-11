@@ -58,6 +58,11 @@ def metres(lon, lat):
     return _project().transform(np.asarray(lon, dtype=float), np.asarray(lat, dtype=float))
 
 
+def lonlat(east, north):
+    """WGS 84 longitude and latitude for positions in metres, the way back from `metres`."""
+    return _project().transform(np.asarray(east, dtype=float), np.asarray(north, dtype=float), direction="INVERSE")
+
+
 def offset_m(lon_a, lat_a, lon_b, lat_b):
     """The distance in metres between paired WGS 84 positions that lie close together."""
     ea, na = metres(lon_a, lat_a)
