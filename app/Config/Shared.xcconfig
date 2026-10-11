@@ -1,0 +1,11 @@
+// The settings both configurations of the app share. Xcode's own project file refers to this file and holds
+// nothing of its own that belongs to this app in particular. What is private to one Mac, the signing team and
+// later the keys of the backend, goes into Local.xcconfig beside this file, which git ignores.
+
+PRODUCT_BUNDLE_IDENTIFIER = edu.princeton.cee420.infrastructurego
+MARKETING_VERSION = 0.1
+CURRENT_PROJECT_VERSION = 1
+IPHONEOS_DEPLOYMENT_TARGET = 18.0
+TARGETED_DEVICE_FAMILY = 1
+
+#include? "Local.xcconfig"

@@ -1,0 +1,4 @@
+// Copy this file to Local.xcconfig, which git ignores, and fill it in. Nothing here is needed to run the app in
+// the simulator. The team is needed to run it on a phone.
+
+DEVELOPMENT_TEAM = YOURTEAMID
