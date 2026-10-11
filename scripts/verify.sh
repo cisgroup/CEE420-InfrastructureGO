@@ -35,6 +35,11 @@ if [ -f app/Package.swift ]; then
 else
   skip "game rules in swift" "app/Package.swift does not exist yet"
 fi
+if [ -d app/InfrastructureGO.xcodeproj ] && xcrun simctl list runtimes 2>/dev/null | grep -q "iOS"; then
+  run "app tests in the simulator" app/scripts/test.sh
+else
+  skip "app tests in the simulator" "the Xcode project or an iPhone simulator is missing"
+fi
 if [ -d web/tests ]; then
   run "web logic" node --test web/tests
 else

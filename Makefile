@@ -1,7 +1,7 @@
 # InfrastructureGO. Each target is one step and says what it writes. Run make with no target to list them.
 
 .DEFAULT_GOAL := help
-.PHONY: help sync inlets facts convert match loop check test swift web map smoke verify
+.PHONY: help sync inlets facts convert match loop check test swift app app-test web map smoke verify
 
 help:    ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-9s %s\n", $$1, $$2}'
@@ -35,6 +35,12 @@ test:    ## run the pipeline's tests
 
 swift:   ## build the game rules in Swift and run their tests on the Mac, no simulator needed
 	swift test --package-path app
+
+app:     ## build the game, put it on the iPhone simulator and start it there
+	app/scripts/run-sim.sh $(ARGS)
+
+app-test: ## run the app's tests inside the iPhone simulator and count them
+	app/scripts/test.sh
 
 web:     ## run the tests of the town's map, which need node and no package
 	node --test web/tests
