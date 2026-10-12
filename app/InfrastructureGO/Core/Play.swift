@@ -1,118 +1,246 @@
 import Foundation
 
-/// One catch as the phone remembers it. Until a server exists this list is the player's whole history.
-nonisolated struct CatchRecord: Codable, Sendable, Equatable, Identifiable {
+/// How a meeting at a drain ended.
+nonisolated enum Outcome: String, Sendable, Codable, Equatable {
+    case caught         // the keeper accepted the marker
+    case mastered       // the player read the tell and the keeper landed on the marker
+    case slipped        // three misses, and the keeper waits at another drain
+    case looked         // a look at a drain without a keeper, which still counts for the town
+}
+
+/// One look at a drain as the phone remembers it. Until a server exists this list is the player's whole history.
+nonisolated struct Meeting: Sendable, Codable, Equatable, Identifiable {
     let id: UUID
     let site: String
-    let species: String?
-    let tier: Int
+    let keeper: String?
+    let outcome: Outcome
+    let need: Int
     let points: Int
-    let great: Bool
+    let parts: Int
     let at: Date
 }
 
-/// What a player has caught so far, from which the points, the level and the field guide follow.
-nonisolated struct PlayerProgress: Codable, Sendable, Equatable {
-    var catches: [CatchRecord] = []
-
-    var points: Int { catches.reduce(0) { $0 + $1.points } }
-
-    /// The time of the player's latest catch at a site.
-    func lastCatch(at site: String) -> Date? {
-        catches.lazy.filter { $0.site == site }.map(\.at).max()
-    }
-
-    func count(of species: String) -> Int {
-        catches.filter { $0.species == species }.count
-    }
-
-    func firstCatch(of species: String) -> Date? {
-        catches.lazy.filter { $0.species == species }.map(\.at).min()
-    }
-
-    /// How many different drains the player caught at on a local day.
-    func drains(on day: String, days: LocalDays) -> Int {
-        Set(catches.filter { days.day(of: $0.at) == day }.map(\.site)).count
-    }
+/// A keeper that slipped away and waits at another drain until the player comes.
+nonisolated struct Waiting: Sendable, Codable, Equatable {
+    let keeper: String
+    let site: String
+    let from: String
+    let since: Date
 }
 
-/// A made up history of reports by other players, so that the map shows every tier before a server exists. Four
-/// drains in ten were never checked, three were checked six days ago and three yesterday. Which drain gets which
-/// follows from its id, so the world looks the same on every phone and on every day.
-nonisolated enum DemoWorld {
-    static func lastReport(site: String, now: Date) -> Date? {
-        switch SpeciesPicker.hashIndex("\(site)|demo world", count: 10) {
-        case 0...3: return nil
-        case 4...6: return now.addingTimeInterval(-6 * SpawnRules.secondsPerDay)
-        default: return now.addingTimeInterval(-1 * SpawnRules.secondsPerDay)
-        }
-    }
+/// An open hunt for a rare keeper, which stays at its drain for the week.
+nonisolated struct Hunt: Sendable, Codable, Equatable {
+    let keeper: String
+    let site: String
+    let week: String
 }
 
-/// What a catch came to, for the card the player sees.
-nonisolated struct CatchResult: Sendable, Equatable {
-    let record: CatchRecord
-    let species: Species?
-    let tier: Tier
-    let sentence: String
+/// Everything a player has done, from which the points, the level, the journal and the map follow.
+nonisolated struct PlayerProgress: Sendable, Codable, Equatable {
+    var version = 2
+    var meetings: [Meeting] = []
+    var bonusPoints = 0
+    var openCells: Set<Int64> = []
+    var known: Set<String> = []
+    var parts: [String: Int] = [:]
+    var pinned: String?
+    var jobs: [Job] = []
+    var swappedOn: String?
+    var waiting: [Waiting] = []
+    var hunt: Hunt?
+    var huntOpenedOn: String?
+    var visitorsMet: Set<String> = []
+    var misses: [String: Int] = [:]
+    var told: Set<String> = []
+    var left: Set<String> = []
+    var figure: String?
+    var friend: String?
+    var easyCatch = false
+    var easyOffered = false
+    var sound = true
+    var ticks = true
+
+    init() {}
+
+    /// A file written by an older build of this version may lack what a newer build added, so every part is
+    /// read if it is there and left at its start value if not.
+    init(from decoder: Decoder) throws {
+        let box = try decoder.container(keyedBy: CodingKeys.self)
+        version = try box.decodeIfPresent(Int.self, forKey: .version) ?? 0
+        guard version == 2 else { throw DecodingError.dataCorruptedError(forKey: .version, in: box, debugDescription: "progress of another version") }
+        meetings = try box.decodeIfPresent([Meeting].self, forKey: .meetings) ?? []
+        bonusPoints = try box.decodeIfPresent(Int.self, forKey: .bonusPoints) ?? 0
+        openCells = try box.decodeIfPresent(Set<Int64>.self, forKey: .openCells) ?? []
+        known = try box.decodeIfPresent(Set<String>.self, forKey: .known) ?? []
+        parts = try box.decodeIfPresent([String: Int].self, forKey: .parts) ?? [:]
+        pinned = try box.decodeIfPresent(String.self, forKey: .pinned)
+        jobs = try box.decodeIfPresent([Job].self, forKey: .jobs) ?? []
+        swappedOn = try box.decodeIfPresent(String.self, forKey: .swappedOn)
+        waiting = try box.decodeIfPresent([Waiting].self, forKey: .waiting) ?? []
+        hunt = try box.decodeIfPresent(Hunt.self, forKey: .hunt)
+        huntOpenedOn = try box.decodeIfPresent(String.self, forKey: .huntOpenedOn)
+        visitorsMet = try box.decodeIfPresent(Set<String>.self, forKey: .visitorsMet) ?? []
+        misses = try box.decodeIfPresent([String: Int].self, forKey: .misses) ?? [:]
+        told = try box.decodeIfPresent(Set<String>.self, forKey: .told) ?? []
+        left = try box.decodeIfPresent(Set<String>.self, forKey: .left) ?? []
+        figure = try box.decodeIfPresent(String.self, forKey: .figure)
+        friend = try box.decodeIfPresent(String.self, forKey: .friend)
+        easyCatch = try box.decodeIfPresent(Bool.self, forKey: .easyCatch) ?? false
+        easyOffered = try box.decodeIfPresent(Bool.self, forKey: .easyOffered) ?? false
+        sound = try box.decodeIfPresent(Bool.self, forKey: .sound) ?? true
+        ticks = try box.decodeIfPresent(Bool.self, forKey: .ticks) ?? true
+    }
+
+    var points: Int { meetings.reduce(bonusPoints) { $0 + $1.points } }
+
+    /// The drains the player has looked at.
+    var looked: Set<String> { Set(meetings.map(\.site)) }
+
+    /// The time of the player's latest look at a drain.
+    func lastLook(at site: String) -> Date? {
+        meetings.lazy.filter { $0.site == site }.map(\.at).max()
+    }
+
+    /// How many looks the player took on a local day.
+    func looks(on day: String, days: LocalDays) -> Int {
+        meetings.filter { days.day(of: $0.at) == day }.count
+    }
+
+    /// The keepers the player has met, which is caught or mastered at least once.
+    var met: Set<String> {
+        Set(meetings.filter { $0.outcome == .caught || $0.outcome == .mastered }.compactMap(\.keeper))
+    }
+
+    /// Whether the player has won a keeper yet. The first meeting of every player is taught and cannot go wrong.
+    var hasMetAnyone: Bool { !met.isEmpty }
+}
+
+/// What a meeting came to, for the card the player sees.
+nonisolated struct MeetingResult: Sendable, Equatable, Identifiable {
+    let meeting: Meeting
+    let keeper: Keeper?
+    let line: String                // what the meeting changed in the journal
+    let pageBefore: Page?
+    let page: Page?
+    let need: Tier
+    let look: String                // the quiet line about the points of the look
+    let crateParts: Int
+    let jobParts: Int
+    let levelParts: Int
+    let filled: [Filled]
+    let thanks: Int                 // points for parts that found no piece to go to
+    let jobsDone: [Job]
     let before: Standing
     let after: Standing
-    let newGear: [GearFile.Gear]
-}
-
-/// What a player may know about a drain before walking to it.
-nonisolated struct DrainOutlook: Sendable, Equatable {
-    let tier: Tier
-    let lastAnyAt: Date?
-    let points: Int
-    let sentence: String
+    let slippedTo: String?
+    var id: UUID { meeting.id }
+    var finished: [GearFile.Piece] { filled.filter(\.finished).map(\.piece) }
 }
 
 nonisolated enum Play {
-    /// The last report on a site by anyone, which before a server exists is the later of the made up history
-    /// and the player's own catches.
-    static func lastAnyAt(site: String, progress: PlayerProgress, now: Date) -> Date? {
-        [DemoWorld.lastReport(site: site, now: now), progress.lastCatch(at: site)].compactMap { $0 }.max()
+    /// The need of a drain for a look by this player now. Until a server exists the last look by anyone is the
+    /// player's own, so every drain the player never looked at has the highest need.
+    static func need(site: String, progress: PlayerProgress, now: Date, rules: GameRules) -> Tier {
+        let last = progress.lastLook(at: site)
+        return SpawnRules.tier(now: now, lastAnyAt: last, myLastAt: last, stormOpen: false, rules: rules)
     }
 
-    static func outlook(site: String, progress: PlayerProgress, stormOpen: Bool, now: Date, rules: GameRules) -> DrainOutlook {
-        let last = lastAnyAt(site: site, progress: progress, now: now)
-        let tier = SpawnRules.tier(now: now, lastAnyAt: last, myLastAt: progress.lastCatch(at: site), stormOpen: stormOpen, rules: rules)
-        return DrainOutlook(tier: tier, lastAnyAt: last, points: SpawnRules.points(tier: tier, greatCatch: false, rules: rules),
-                            sentence: Words.why(tier: tier, lastAnyAt: last, stormOpen: stormOpen, now: now))
+    /// Whether a drain rests for this player, which it does for the rest of the day after a look.
+    static func rests(site: String, progress: PlayerProgress, now: Date, rules: GameRules) -> Bool {
+        need(site: site, progress: progress, now: now, rules: rules) == .resting
     }
 
-    /// Settle a catch. The tier is the one the drain has at this instant, the species the one of the day, and the
-    /// record is added to the progress that comes back.
-    static func settle(site: String, greatCatch: Bool, progress: PlayerProgress, stormOpen: Bool, now: Date,
-                       rules: GameRules, species: [Species], gear: GearFile) -> (CatchResult, PlayerProgress) {
-        let seen = outlook(site: site, progress: progress, stormOpen: stormOpen, now: now, rules: rules)
-        let great = greatCatch && seen.tier > .resting
-        let creature = SpeciesPicker.pick(inletId: site, day: rules.days.day(of: now), tier: seen.tier, stormOpen: stormOpen, from: species)
-        let points = SpawnRules.points(tier: seen.tier, greatCatch: great, rules: rules)
-        let record = CatchRecord(id: UUID(), site: site, species: creature?.id, tier: seen.tier.rawValue, points: points, great: great, at: now)
+    /// The keeper this player meets at a drain now, or nil at a drain that rests.
+    ///
+    /// A keeper that slipped away and waits here comes first. The first keeper of every player is the first
+    /// common one of the file, the frog. Then the week's visitor, if this is its drain and the player has not met
+    /// it this week. Otherwise the keeper that lives here.
+    static func keeper(at site: Inlet, grates: Int, progress: PlayerProgress, now: Date, book: Book, visitor: (site: Inlet, keeper: Keeper)? = nil) -> Keeper? {
+        guard !rests(site: site.id, progress: progress, now: now, rules: book.rules) else { return nil }
+        if let waits = progress.waiting.first(where: { $0.site == site.id }), let keeper = book.keeper(waits.keeper) { return keeper }
+        if !progress.hasMetAnyone, let first = book.keepers.first(where: { $0.kind == "common" }) { return first }
+        let days = book.rules.days
+        if let visitor, visitor.site.id == site.id, !progress.visitorsMet.contains("\(days.week(of: now))|\(site.zone)") { return visitor.keeper }
+        return World.resident(of: site, grates: grates, day: days.day(of: now), week: days.week(of: now), keepers: book.keepers, kinds: book.world.kinds)
+    }
+
+    /// The parts in the crate of a drain, by its need.
+    static func crateParts(need: Tier, world: WorldRules) -> Int {
+        world.crateParts.indices.contains(need.rawValue) ? world.crateParts[need.rawValue] : 0
+    }
+
+    /// The misses a player has at a drain today. Leaving a meeting does not wipe them.
+    static func misses(at site: String, progress: PlayerProgress, now: Date, rules: GameRules) -> Int {
+        progress.misses["\(site)|\(rules.days.day(of: now))"] ?? 0
+    }
+
+    static func missed(at site: String, progress: PlayerProgress, now: Date, rules: GameRules) -> PlayerProgress {
         var grown = progress
-        grown.catches.append(record)
-        let result = CatchResult(record: record, species: creature, tier: seen.tier,
-                                 sentence: Words.result(points: points, great: great, why: seen.sentence),
-                                 before: Progression.standing(points: progress.points, in: gear),
-                                 after: Progression.standing(points: grown.points, in: gear),
-                                 newGear: Progression.newGear(from: progress.points, to: grown.points, in: gear))
+        grown.misses["\(site)|\(rules.days.day(of: now))", default: 0] += 1
+        return grown
+    }
+
+    /// Settle a meeting and keep it. The look counts for the town whatever became of the keeper.
+    static func settle(site: Inlet, keeper: Keeper?, outcome: Outcome, slipTo: Inlet? = nil, progress: PlayerProgress, now: Date, book: Book) -> (MeetingResult, PlayerProgress) {
+        let days = book.rules.days
+        let day = days.day(of: now)
+        let need = need(site: site.id, progress: progress, now: now, rules: book.rules)
+        let last = progress.lastLook(at: site.id)
+        let won = outcome == .caught || outcome == .mastered
+        let newSite = !progress.looked.contains(site.id)
+        let pageBefore = keeper.map { Journal.page(of: $0.id, in: progress, rungs: book.world.rungs) }
+        let newKind = won && (pageBefore?.meetings ?? 0) == 0 && keeper != nil
+
+        var points = SpawnRules.points(tier: need, greatCatch: false, rules: book.rules)
+        if newKind { points += book.world.points.newKind }
+        if outcome == .mastered { points += book.world.points.mastered }
+        let crate = crateParts(need: need, world: book.world)
+
+        var grown = progress
+        let before = Progression.standing(points: grown.points, in: book.gear)
+        let record = Meeting(id: UUID(), site: site.id, keeper: keeper?.id, outcome: keeper == nil ? .looked : outcome, need: need.rawValue, points: points, parts: crate, at: now)
+        grown.meetings.append(record)
+        grown.known.insert(site.id)
+        grown.misses = grown.misses.filter { !$0.key.hasPrefix("\(site.id)|") }
+
+        var jobsDone = Jobs.record(.look(newSite: newSite), in: &grown.jobs, day: day)
+        if newKind { jobsDone += Jobs.record(.newKeeper, in: &grown.jobs, day: day) }
+        if outcome == .mastered { jobsDone += Jobs.record(.seal, in: &grown.jobs, day: day) }
+        let levelParts = max(0, Progression.standing(points: grown.points, in: book.gear).level - before.level)
+        let handed = Gear.add(crate + jobsDone.count + levelParts, to: &grown.parts, pinned: grown.pinned, in: book.gear)
+        let thanks = handed.over * book.world.points.thanks
+        grown.bonusPoints += thanks
+
+        if let keeper {
+            grown.waiting.removeAll { $0.site == site.id && $0.keeper == keeper.id }
+            if outcome == .slipped, let slipTo {
+                grown.waiting.append(Waiting(keeper: keeper.id, site: slipTo.id, from: site.id, since: now))
+                if grown.waiting.count > book.world.slip.waiting { grown.waiting.removeFirst(grown.waiting.count - book.world.slip.waiting) }
+            }
+            if won, let hunt = grown.hunt, hunt.site == site.id, hunt.keeper == keeper.id { grown.hunt = nil }
+            if won, keeper.kind == "visitor" { grown.visitorsMet.insert("\(days.week(of: now))|\(site.zone)") }
+        }
+
+        let page = keeper.map { Journal.page(of: $0.id, in: grown, rungs: book.world.rungs) }
+        let line: String
+        if let keeper, let pageBefore, let page, won {
+            line = Journal.line(keeper, before: pageBefore, after: page, mastered: outcome == .mastered)
+        } else if outcome == .slipped {
+            line = "It slipped away. It waits at another drain close by."
+        } else {
+            line = "A look that counts."
+        }
+        let result = MeetingResult(meeting: record, keeper: keeper, line: line, pageBefore: pageBefore, page: page, need: need,
+                                   look: Words.look(points: SpawnRules.points(tier: need, greatCatch: false, rules: book.rules), need: need, last: last, now: now),
+                                   crateParts: crate, jobParts: jobsDone.count, levelParts: levelParts, filled: handed.filled, thanks: thanks, jobsDone: jobsDone,
+                                   before: before, after: Progression.standing(points: grown.points, in: book.gear),
+                                   slippedTo: outcome == .slipped ? slipTo?.id : nil)
         return (result, grown)
     }
 }
 
 /// The sentences of the game, in plain words and in one place.
 nonisolated enum Words {
-    static func name(of tier: Tier) -> String {
-        switch tier {
-        case .resting: "Resting"
-        case .common: "Common"
-        case .uncommon: "Uncommon"
-        case .rare: "Rare"
-        }
-    }
-
     /// How long ago something was, counted in whole days of elapsed time.
     static func ago(_ then: Date, now: Date) -> String {
         let days = Int(max(0, now.timeIntervalSince(then)) / SpawnRules.secondsPerDay)
@@ -123,24 +251,29 @@ nonisolated enum Words {
         }
     }
 
-    /// Why a drain is worth what it is worth, as one sentence.
-    static func why(tier: Tier, lastAnyAt: Date?, stormOpen: Bool, now: Date) -> String {
-        switch tier {
-        case .resting:
-            return "You already caught here today."
-        case .rare:
-            guard let last = lastAnyAt else { return "Nobody has checked this drain yet." }
-            if stormOpen && now.timeIntervalSince(last) < 14 * SpawnRules.secondsPerDay { return "A storm window is open, so every drain is rare." }
-            return "Nobody has checked this drain in \(Int(now.timeIntervalSince(last) / SpawnRules.secondsPerDay)) days."
-        case .uncommon:
-            return "This drain was last checked \(ago(lastAnyAt ?? now, now: now))."
-        case .common:
-            return "This drain was checked \(ago(lastAnyAt ?? now, now: now)). A second look still helps."
+    /// What is known about earlier looks at a drain. It speaks of the player's own looks, because until a server
+    /// exists the phone knows of no others, and it claims nothing about what the town or anybody else did.
+    static func lastLook(_ last: Date?, now: Date) -> String {
+        guard let last else { return "You have not looked at this drain yet." }
+        return "You last looked here \(ago(last, now: now))."
+    }
+
+    /// The quiet line of a result about the points of the look itself.
+    static func look(points: Int, need: Tier, last: Date?, now: Date) -> String {
+        switch need {
+        case .resting: "\(count(points, "point", "points")). You already looked here today."
+        default: last == nil ? "\(points) points for your first look at this drain." : "\(points) points. \(lastLook(last, now: now))"
         }
     }
 
-    static func result(points: Int, great: Bool, why: String) -> String {
-        "\(points) points. " + (great ? "Great catch. " : "") + why
+    /// What a crate of a drain holds, said before it is opened.
+    static func crate(parts: Int) -> String {
+        switch parts {
+        case 0: "No crate today."
+        case 1: "A small crate."
+        case 2: "A good crate."
+        default: "A full crate."
+        }
     }
 
     static func distance(_ metres: Double) -> String {
@@ -154,6 +287,24 @@ nonisolated enum Words {
         case .roughFix: "GPS is rough here, wait a moment."
         case .inside: "You are at the drain."
         }
+    }
+
+    /// What the detector says under its needle.
+    static func detector(_ reading: Reading) -> String {
+        switch reading.state {
+        case .noFix: "Waiting for your position."
+        case .outside: "The watershed ends here. Turn back toward the dashed line."
+        case .quiet: "Quiet here. Walk on, the needle shows the way."
+        case .atDrain: "Close enough. You can stay on this side."
+        case .signal: reading.distanceM.map { "Something \(distance($0)) away." } ?? "Something is near."
+        }
+    }
+
+    /// The hint that opens a hunt. It names the road of the drain, or a direction where the road has no name.
+    static func hint(road: String, bearing: Double) -> String {
+        if !road.isEmpty { return "Your detector picked up something unusual near \(road)." }
+        let names = ["north", "north east", "east", "south east", "south", "south west", "west", "north west"]
+        return "Your detector picked up something unusual in the streets \(names[Int(((bearing + 22.5).truncatingRemainder(dividingBy: 360)) / 45) % 8]) of you."
     }
 
     /// A count with its noun, the way a person says it.

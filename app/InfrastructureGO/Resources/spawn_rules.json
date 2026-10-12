@@ -1,6 +1,6 @@
 {
  "version": 1,
- "about": "The numbers of the game. The app reads this file, the backend is seeded from it and the tests replay model/spawn_cases.json against it, so a rule is changed here and nowhere else. A drain rests for a player who already reported it on the same local day. Otherwise it is rare while a storm window is open, when it was never reported, or when its last report by anyone is at least 14 days old, uncommon from 3 days on, and common below that. Ages are elapsed time, days are calendar days in the timezone.",
+ "about": "The need of a drain and what a look at it is worth. The app reads this file, the backend is seeded from it and the tests replay model/spawn_cases.json against it, so a rule is changed here and nowhere else. A drain rests for a player who already looked at it on the same local day. Otherwise its need is the highest while a storm window is open, when nobody ever looked, or when the last look by anyone is at least 14 days old, the middle one from 3 days on, and the lowest below that. Ages are elapsed time, days are calendar days in the timezone. The tier names are the old ones of the first version. The need decides the crate of a drain and the points of a look, and no longer which keeper lives there. The bonus named great catch stays for the shared cases and is not used by the game.",
  "timezone": "America/New_York",
  "fence": {"radius_m": 20, "max_accuracy_m": 25, "server_max_distance_m": 50, "sibling_radius_m": 12},
  "tiers": [
@@ -9,7 +9,5 @@
   {"tier": 2, "name": "uncommon", "points": 20, "min_age_days": 3},
   {"tier": 3, "name": "rare", "points": 30, "min_age_days": 14}
  ],
- "great_catch": {"points": 5, "ring_scale_max": 0.45},
- "ring": {"period_s": 2.5, "start_scale": 1.0, "end_scale": 0.3},
- "throw": {"count": 3, "min_swipe_pt": 60, "aim_tolerance_deg": 25}
+ "great_catch": {"points": 5}
 }

@@ -1,0 +1,18 @@
+{
+ "version": 1,
+ "about": "The numbers of the world around the drains, all of them open to tuning after play. Kinds says how many of a hundred drains hold a common or an uncommon keeper on a day, and how many of a hundred are the home of a rare one for a week. Crate parts are the parts a crate gives by the need of the drain, from a drain that rests to one nobody looked at for two weeks or ever. Distances are in metres, times in seconds, angles in degrees. The veil's origin is a corner south west of the town from which its squares are counted.",
+ "kinds": {"common": 65, "uncommon": 35, "rare_per_hundred": 3},
+ "sense_m": 80,
+ "veil": {"cell_m": 25, "open_m": 70, "boots_open_m": 110, "origin": {"lon": -74.75, "lat": 40.30}},
+ "detector": {"range_m": 150, "long_range_m": 300, "quiet_m": 30, "slow_tick_s": 1.5, "fast_tick_s": 0.22},
+ "nearby": {"radius_m": 350, "slots": 3, "vest_slots": 5},
+ "slip": {"min_m": 40, "max_m": 150, "wheel_max_m": 80, "waiting": 3},
+ "hunt": {"min_m": 150, "max_m": 500, "opens_at_look": 4},
+ "crate_parts": [0, 1, 2, 3],
+ "points": {"new_kind": 50, "mastered": 25, "thanks": 5},
+ "rungs": [1, 3, 7, 15],
+ "catch": {"flight_s": 0.35, "min_swipe_pt": 60, "aim_deg": 25, "wide_aim_deg": 35, "misses": 3, "sitting_share": 0.6, "grace_s": 0.15},
+ "stages": {"nearby_after_meetings": 1, "jobs_after_drains": 2, "hunt_after_looks": 4, "visitor_after_pieces": 2},
+ "invites": {"not_owners": ["State"], "not_roads": ["State Road"], "not_road_prefixes": ["FR "]},
+ "jobs": {"slots": 3, "reach_m": 400}
+}

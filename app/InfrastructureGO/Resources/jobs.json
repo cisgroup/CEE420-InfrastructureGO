@@ -1,0 +1,15 @@
+{
+ "version": 1,
+ "about": "The small jobs of the crew. Three are open at a time. A finished job pays one part of gear and makes room for a new one on the next day, an unfinished job stays, and nothing is lost by not playing. Kind says what counts toward a job.",
+ "jobs": [
+  {"id": "look_3", "text": "Look at three drains", "kind": "looks", "count": 3},
+  {"id": "look_5", "text": "Look at five drains", "kind": "looks", "count": 5},
+  {"id": "look_8", "text": "Look at eight drains", "kind": "looks", "count": 8},
+  {"id": "new_drain", "text": "Find a drain you have never been to", "kind": "new_sites", "count": 1},
+  {"id": "new_drains_3", "text": "Find three drains you have never been to", "kind": "new_sites", "count": 3},
+  {"id": "new_keeper", "text": "Meet a keeper that is new to you", "kind": "new_keeper", "count": 1},
+  {"id": "seal", "text": "Earn a seal with a well read throw", "kind": "seal", "count": 1},
+  {"id": "squares_20", "text": "Uncover twenty new squares of the map", "kind": "cells", "count": 20},
+  {"id": "squares_60", "text": "Uncover sixty new squares of the map", "kind": "cells", "count": 60}
+ ]
+}

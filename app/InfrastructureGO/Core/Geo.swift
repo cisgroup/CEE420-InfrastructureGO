@@ -83,4 +83,13 @@ nonisolated struct LocalDays: Sendable {
         let parts = calendar.dateComponents([.year, .month, .day], from: date)
         return String(format: "%04d-%02d-%02d", parts.year ?? 0, parts.month ?? 0, parts.day ?? 0)
     }
+
+    /// The week of a date as text, for example 2026-W41. Weeks begin on Monday and belong to the year that holds
+    /// their Thursday, the way calendars number them.
+    func week(of date: Date) -> String {
+        var weeks = Calendar(identifier: .iso8601)
+        weeks.timeZone = calendar.timeZone
+        let parts = weeks.dateComponents([.yearForWeekOfYear, .weekOfYear], from: date)
+        return String(format: "%04d-W%02d", parts.yearForWeekOfYear ?? 0, parts.weekOfYear ?? 0)
+    }
 }

@@ -1,26 +1,27 @@
 {
- "version": 1,
- "about": "The story of the first role. Points are experience, a level is reached at its points, and each level from the second on hands the apprentice one piece of gear with a fact from facts.json. An unlock changes play and is named here so that the app can ask for it by name.",
+ "version": 2,
+ "about": "The story of the first role. Points are experience and a level is reached at its points. Gear comes in parts, from the crates at drains, from finished jobs and one with every level. The parts fill one piece at a time, in the order of this file unless the player pins another piece. A finished piece opens something new to do, named here so that the app can ask for it by name, and nothing the game needs is locked behind a piece.",
  "role": {"id": "apprentice", "name": "Apprentice at Princeton Public Works"},
  "levels": [
-  {"level": 1, "points": 0, "gear": null},
-  {"level": 2, "points": 100, "gear": "hard_hat"},
-  {"level": 3, "points": 300, "gear": "vest"},
-  {"level": 4, "points": 600, "gear": "boots"},
-  {"level": 5, "points": 1000, "gear": "rake"},
-  {"level": 6, "points": 1500, "gear": "flashlight"},
-  {"level": 7, "points": 2200, "gear": "field_tablet"},
-  {"level": 8, "points": 3000, "gear": "survey_wheel"},
-  {"level": 9, "points": 4000, "gear": "key_ring"}
+  {"level": 1, "points": 0, "rank": "Apprentice"},
+  {"level": 2, "points": 100, "rank": "Apprentice"},
+  {"level": 3, "points": 300, "rank": "Apprentice"},
+  {"level": 4, "points": 600, "rank": "Crew member"},
+  {"level": 5, "points": 1000, "rank": "Crew member"},
+  {"level": 6, "points": 1500, "rank": "Inspector"},
+  {"level": 7, "points": 2200, "rank": "Inspector"},
+  {"level": 8, "points": 3000, "rank": "Engineer"},
+  {"level": 9, "points": 4000, "rank": "Town planner"}
  ],
- "gear": [
-  {"id": "hard_hat", "name": "Hard hat", "fact_id": "drains_on_the_map", "unlock": null},
-  {"id": "vest", "name": "High visibility vest", "fact_id": "who_owns_them", "unlock": null},
-  {"id": "boots", "name": "Boots", "fact_id": "bicycle_safe", "unlock": null},
-  {"id": "rake", "name": "Rake", "fact_id": "check_before_and_after", "unlock": null},
-  {"id": "flashlight", "name": "Flashlight", "fact_id": "drains_like_company", "unlock": null},
-  {"id": "field_tablet", "name": "Field tablet", "fact_id": "last_inspection", "unlock": "history"},
-  {"id": "survey_wheel", "name": "Survey wheel", "fact_id": "why_it_matters", "unlock": "wide_radius"},
-  {"id": "key_ring", "name": "The crew's key ring", "fact_id": null, "unlock": null}
+ "pieces": [
+  {"id": "hard_hat", "name": "Hard hat", "parts": 0, "opens": null, "says": "Yours from the first day."},
+  {"id": "boots", "name": "Boots", "parts": 3, "opens": "wide_veil", "says": "The map opens 110 m around you instead of 70 m."},
+  {"id": "long_coil", "name": "Long coil", "parts": 6, "opens": "long_range", "says": "The detector reaches 300 m instead of 150 m."},
+  {"id": "lamp", "name": "Lamp", "parts": 10, "opens": "pulse", "says": "The landing patch pulses at the right moment."},
+  {"id": "wide_marker", "name": "Wide marker", "parts": 15, "opens": "wide_aim", "says": "A sloppier throw still lands."},
+  {"id": "vest", "name": "High visibility vest", "parts": 20, "opens": "more_shadows", "says": "The nearby list shows five shadows instead of three."},
+  {"id": "tuned_coil", "name": "Tuned coil", "parts": 26, "opens": "tuned", "says": "The detector shows how rare the nearest keeper is."},
+  {"id": "field_tablet", "name": "Field tablet", "parts": 32, "opens": "town_card", "says": "A drain's sheet shows the town's own card."},
+  {"id": "survey_wheel", "name": "Survey wheel", "parts": 40, "opens": "near_slip", "says": "A keeper that slipped away waits nearer, and you see which one it is."}
  ]
 }

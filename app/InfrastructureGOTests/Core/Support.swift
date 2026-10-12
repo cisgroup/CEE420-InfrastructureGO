@@ -20,7 +20,10 @@ nonisolated enum Repo {
     }
 
     static func rules() throws -> GameRules { try GameRules(json: resource("spawn_rules.json")) }
-    static func species() throws -> [Species] { try SpeciesFile(json: resource("species.json")).species }
+    static func keepers() throws -> [Keeper] { try KeeperFile(json: resource("keepers.json")).keepers }
+    static func world() throws -> WorldRules { try WorldRules(json: resource("world_rules.json")) }
+    static func jobs() throws -> [JobRule] { try JobFile(json: resource("jobs.json")).jobs }
+    static func book() throws -> Book { Book(rules: try rules(), world: try world(), keepers: try keepers(), gear: try gear(), jobs: try jobs()) }
     static func gear() throws -> GearFile { try GearFile(json: resource("gear.json")) }
     static func facts() throws -> FactFile { try FactFile(json: resource("facts.json")) }
     static func inlets() throws -> InletStore { try InletStore(json: resource("inlets.json")) }
@@ -46,18 +49,8 @@ nonisolated struct SpawnCases: Decodable, Sendable {
         var testDescription: String { "tier \(tier)\(greatCatch ? ", great catch" : "")" }
     }
 
-    nonisolated struct SpeciesCase: Decodable, Sendable, CustomTestStringConvertible {
-        let inletId: String
-        let day: String
-        let tier: Int
-        let stormOpen: Bool
-        let species: String?
-        var testDescription: String { "\(inletId) on \(day), tier \(tier)\(stormOpen ? ", storm" : "")" }
-    }
-
     let tierCases: [TierCase]
     let pointsCases: [PointsCase]
-    let speciesCases: [SpeciesCase]
 
     static let shared: SpawnCases = {
         do { return try GameData.decoder.decode(SpawnCases.self, from: Repo.data("model/spawn_cases.json")) }
@@ -68,4 +61,18 @@ nonisolated struct SpawnCases: Decodable, Sendable {
 /// A timestamp with its offset, as the shared cases write it.
 nonisolated func instant(_ text: String) throws -> Date {
     try Date(text, strategy: .iso8601)
+}
+
+/// A keeper made up for a test, so that a rule can be tried on a cast the tests control.
+nonisolated func madeUpKeeper(_ id: String, kind: String, weight: Int = 1, zones: [String] = [], owners: [String] = [], roads: [String] = [], rows: Double = 1,
+                              timing: Keeper.Timing = Keeper.Timing(watchS: [1.8, 3.0], tellS: 0.8, airS: 0.5, settleS: 0.6, hideEvery: 0, hideS: 0, feintEvery: 0)) -> Keeper {
+    Keeper(id: id, name: id.capitalized, part: "grate", keeps: "keeper of the grate", kind: kind, pattern: "hopper", model: id, heightM: 0.4, hoverM: 0, weight: weight,
+           habitat: Keeper.Habitat(zones: zones, owners: owners, roads: roads, rows: rows), timing: timing,
+           clips: ["idle": "idle"], tell: "It crouches.", tellWord: "crouch", hint: "Somewhere.", returning: "Back again.", pose: "Proud Hop", joke: "", credit: "")
+}
+
+/// The drains of the game on a day in November, the ones a player can look at.
+nonisolated func drainsOfTheGame() throws -> [Inlet] {
+    let zones = try Repo.zones()
+    return try Repo.inlets().heads.filter { zones.canBeCaught($0, on: "2026-11-10") }
 }

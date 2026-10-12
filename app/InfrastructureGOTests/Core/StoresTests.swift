@@ -175,6 +175,28 @@ struct StoresTests {
         #expect(rules.tiers.map(\.tier) == [0, 1, 2, 3])
         #expect(rules.tiers.map(\.points) == [2, 10, 20, 30])
         #expect(rules.fence.radiusM == 20 && rules.fence.serverMaxDistanceM == 50)
-        #expect(rules.throwing.count == 3)
+    }
+
+    @Test func theWorldsNumbersReadAsWritten() throws {
+        let world = try Repo.world()
+        #expect(world.crateParts == [0, 1, 2, 3] && world.rungs == [1, 3, 7, 15])
+        #expect(world.kinds.common + world.kinds.uncommon == 100 && world.kinds.rarePerHundred == 3)
+        #expect(world.veil.openM < world.veil.bootsOpenM && world.detector.rangeM < world.detector.longRangeM)
+        #expect(world.slip.minM > (try Repo.rules().fence.radiusM), "a keeper that slipped away waits outside the fence, so there is a walk")
+        #expect(world.catching.misses == 3)
+    }
+
+    @Test func everyKeeperOfTheFileIsWhole() throws {
+        let keepers = try Repo.keepers()
+        #expect(Set(keepers.map(\.id)).count == keepers.count)
+        #expect(keepers.first?.id == "frog" && keepers.first?.kind == "common", "the first keeper of every player is the frog")
+        for keeper in keepers {
+            #expect(Keeper.kinds.contains(keeper.kind))
+            for role in ["idle", "tell", "leap", "land", "accept", "refuse", "goodbye"] {
+                #expect(keeper.clips[role] != nil, "\(keeper.id) has no movement for \(role)")
+            }
+            #expect(keeper.heightM > 0.1 && keeper.heightM < 1 && keeper.weight > 0 && keeper.timing.watchS.count == 2)
+            #expect(!keeper.credit.isEmpty && !keeper.keeps.isEmpty && !keeper.tellWord.isEmpty)
+        }
     }
 }

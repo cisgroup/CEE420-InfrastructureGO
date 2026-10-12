@@ -32,7 +32,8 @@ final class VirtualHost {
         return VirtualHost(backdrop: .modelled, picture: nil)
     }
 
-    private init(backdrop: Backdrop, picture: TextureResource?) {
+    /// A host for a given view. Without a picture the modelled drain is built, which needs no file at all.
+    init(backdrop: Backdrop, picture: TextureResource?) {
         self.backdrop = backdrop
         hasPicture = picture != nil
         let pitch = Float(backdrop.pitchDeg * .pi / 180)
@@ -58,6 +59,7 @@ final class VirtualHost {
         ground.position = [Float(backdrop.grateXM), 0, Float(backdrop.grateZM)]
         ground.orientation = simd_quatf(angle: -Float(backdrop.grateYawDeg * .pi / 180), axis: [0, 1, 0])
         root.addChild(ground)
+        if picture == nil { ground.addChild(ModelledDrain.build()) }
 
         let sun = DirectionalLight()
         sun.light.intensity = 1700
@@ -80,5 +82,17 @@ final class VirtualHost {
         let toCamera = SIMD3<Float>(-Float(backdrop.grateXM), 0, -Float(backdrop.grateZM))
         let local = ground.orientation.inverse.act(toCamera)
         return atan2(local.x, local.z)
+    }
+
+    /// The place of a spot of the grate in the scene, on the ground. Along runs from minus one at the left end of
+    /// the grate to one at its right end, across from minus one at the kerb to one at the street side.
+    func place(along: Double, across: Double) -> SIMD3<Float> {
+        let spot = backdrop.spot(along: along, across: across)
+        return [Float(spot.x), 0, Float(spot.z)]
+    }
+
+    /// The turn about the vertical that makes something at a place face the camera.
+    func facing(from place: SIMD3<Float>) -> Float {
+        atan2(-place.x, -place.z)
     }
 }

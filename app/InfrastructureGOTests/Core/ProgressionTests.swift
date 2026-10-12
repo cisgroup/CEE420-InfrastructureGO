@@ -2,65 +2,65 @@ import Foundation
 import Testing
 @testable import InfrastructureGO
 
-@Suite("Levels and gear")
+@Suite("Levels and gear in parts")
 struct ProgressionTests {
-    @Test func aNewPlayerIsAtLevelOneWithNothing() throws {
-        let file = try Repo.gear()
-        let standing = Progression.standing(points: 0, in: file)
-        #expect(standing.level == 1 && standing.pointsIntoLevel == 0 && standing.fraction == 0)
-        #expect(standing.pointsToNext == file.levels[1].points)
-        #expect(Progression.gear(at: 0, in: file).isEmpty)
+    @Test func aNewPlayerIsAnApprenticeAtLevelOne() throws {
+        let standing = Progression.standing(points: 0, in: try Repo.gear())
+        #expect(standing.level == 1 && standing.rank == "Apprentice" && standing.pointsToNext == 100 && standing.fraction == 0)
     }
 
-    @Test("a level is reached at exactly its points", arguments: [(99, 1), (100, 2), (299, 2), (300, 3), (599, 3), (600, 4), (1000, 5), (1500, 6), (2200, 7), (3000, 8), (3999, 8), (4000, 9), (250_000, 9)])
-    func levels(points: Int, level: Int) throws {
+    @Test("a level is reached at exactly its points", arguments: [(99, 1), (100, 2), (299, 2), (300, 3), (599, 3), (600, 4), (1000, 5), (2199, 6), (2200, 7), (3999, 8), (4000, 9), (99_999, 9)])
+    func level(points: Int, level: Int) throws {
         #expect(Progression.standing(points: points, in: try Repo.gear()).level == level)
     }
 
-    @Test func theBarFillsBetweenTwoLevels() throws {
-        let standing = Progression.standing(points: 200, in: try Repo.gear())
-        #expect(standing.level == 2 && standing.pointsIntoLevel == 100 && standing.pointsToNext == 100 && standing.fraction == 0.5)
+    @Test func theRanksClimbFromApprenticeToTownPlanner() throws {
+        let gear = try Repo.gear()
+        #expect(Progression.standing(points: 600, in: gear).rank == "Crew member")
+        #expect(Progression.standing(points: 4000, in: gear).rank == "Town planner")
+        #expect(Progression.standing(points: 4000, in: gear).pointsToNext == nil && Progression.standing(points: 4000, in: gear).fraction == 1)
+        #expect(Progression.standing(points: 200, in: gear).fraction == 0.5)
+        #expect(Progression.standing(points: -5, in: gear).level == 1)
     }
 
-    @Test func theLastLevelHasNoNext() throws {
-        let standing = Progression.standing(points: 5000, in: try Repo.gear())
-        #expect(standing.level == 9 && standing.pointsToNext == nil && standing.fraction == 1 && standing.pointsIntoLevel == 1000)
+    @Test func theHardHatIsThereFromTheStartAndPricesRise() throws {
+        let gear = try Repo.gear()
+        #expect(Gear.owned(parts: [:], in: gear).map(\.id) == ["hard_hat"])
+        #expect(gear.pieces.map(\.parts) == [0, 3, 6, 10, 15, 20, 26, 32, 40])
+        #expect(Gear.missing(parts: [:], in: gear) == 152)
+        #expect(Set(gear.pieces.map(\.id)).count == gear.pieces.count)
     }
 
-    @Test func negativePointsCountAsNone() throws {
-        #expect(Progression.standing(points: -40, in: try Repo.gear()).level == 1)
+    @Test func partsFillOnePieceAtATimeAndRunOverIntoTheNext() throws {
+        let gear = try Repo.gear()
+        var parts: [String: Int] = [:]
+        let first = Gear.add(3, to: &parts, pinned: nil, in: gear)
+        #expect(first.filled.map(\.piece.id) == ["boots"] && first.filled[0].finished && first.over == 0)
+        #expect(Gear.opens("wide_veil", parts: parts, in: gear) && !Gear.opens("long_range", parts: parts, in: gear))
+        let second = Gear.add(8, to: &parts, pinned: nil, in: gear)
+        #expect(second.filled.map(\.piece.id) == ["long_coil", "lamp"])
+        #expect(second.filled[0].finished && !second.filled[1].finished && second.filled[1].after == 2)
+        #expect(Gear.next(parts: parts, pinned: nil, in: gear)?.id == "lamp")
     }
 
-    @Test func gearArrivesInTheOrderOfTheLevels() throws {
-        let file = try Repo.gear()
-        #expect(Progression.gear(at: 100, in: file).map(\.id) == ["hard_hat"])
-        #expect(Progression.gear(at: 650, in: file).map(\.id) == ["hard_hat", "vest", "boots"])
-        #expect(Progression.gear(at: 4000, in: file).count == file.gear.count)
+    @Test func aPinnedPieceIsFilledFirstAndAFinishedPinIsPassedOver() throws {
+        let gear = try Repo.gear()
+        var parts: [String: Int] = [:]
+        let pinned = Gear.add(2, to: &parts, pinned: "lamp", in: gear)
+        #expect(pinned.filled.map(\.piece.id) == ["lamp"] && parts["boots"] == nil)
+        parts["lamp"] = 10
+        #expect(Gear.next(parts: parts, pinned: "lamp", in: gear)?.id == "boots")
+        #expect(Gear.next(parts: parts, pinned: "no such piece", in: gear)?.id == "boots")
     }
 
-    @Test func aCatchThatCrossesALevelHandsOverItsGear() throws {
-        let file = try Repo.gear()
-        #expect(Progression.newGear(from: 95, to: 125, in: file).map(\.id) == ["hard_hat"])
-        #expect(Progression.newGear(from: 125, to: 155, in: file).isEmpty)
-        #expect(Progression.newGear(from: 290, to: 620, in: file).map(\.id) == ["vest", "boots"])
-    }
-
-    @Test func theTwoUnlocksComeWithTheirGear() throws {
-        let file = try Repo.gear()
-        #expect(!Progression.has(unlock: "history", at: 2199, in: file))
-        #expect(Progression.has(unlock: "history", at: 2200, in: file))
-        #expect(!Progression.has(unlock: "wide_radius", at: 2999, in: file))
-        #expect(Progression.has(unlock: "wide_radius", at: 3000, in: file))
-        #expect(!Progression.has(unlock: "something_else", at: 99_999, in: file))
-    }
-
-    @Test func everyGearFactIsAFactOnFile() throws {
-        let file = try Repo.gear()
-        let facts = try Repo.facts()
-        for gear in file.gear {
-            if let id = gear.factId { #expect(facts.fact(id: id) != nil, "the fact \(id) of \(gear.id) is missing") }
-        }
-        #expect(facts.facts.allSatisfy { !$0.text.isEmpty && !$0.source.isEmpty && !$0.retrieved.isEmpty })
-        #expect(facts.fact(id: nil) == nil)
+    @Test func aFinishedPieceTakesNoMorePartsAndPartsWithoutAPlaceAreLeftOver() throws {
+        let gear = try Repo.gear()
+        var parts: [String: Int] = [:]
+        let all = Gear.add(152, to: &parts, pinned: nil, in: gear)
+        #expect(all.over == 0 && Gear.owned(parts: parts, in: gear).count == gear.pieces.count && Gear.missing(parts: parts, in: gear) == 0)
+        for piece in gear.pieces { #expect((parts[piece.id] ?? 0) == piece.parts) }
+        let more = Gear.add(4, to: &parts, pinned: "boots", in: gear)
+        #expect(more.filled.isEmpty && more.over == 4)
+        #expect(Gear.next(parts: parts, pinned: nil, in: gear) == nil)
     }
 }

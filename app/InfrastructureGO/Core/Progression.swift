@@ -1,7 +1,7 @@
 import Foundation
 
-/// The story of a role as gear.json states it. Points are experience, a level is reached at its points, and each
-/// level from the second on hands over one piece of gear.
+/// The story of a role as gear.json states it. Points are experience and a level is reached at its points. Gear
+/// comes in parts, and a piece is finished when it has all its parts.
 nonisolated struct GearFile: Sendable, Decodable {
     nonisolated struct Role: Sendable, Decodable, Equatable {
         let id: String
@@ -11,29 +11,36 @@ nonisolated struct GearFile: Sendable, Decodable {
     nonisolated struct LevelRule: Sendable, Decodable, Equatable {
         let level: Int
         let points: Int
-        let gear: String?
+        let rank: String
     }
 
-    nonisolated struct Gear: Sendable, Decodable, Equatable, Identifiable {
+    nonisolated struct Piece: Sendable, Decodable, Equatable, Identifiable {
         let id: String
         let name: String
-        let factId: String?
-        let unlock: String?
+        let parts: Int
+        let opens: String?
+        let says: String
     }
 
     let version: Int
     let role: Role
     let levels: [LevelRule]
-    let gear: [Gear]
+    let pieces: [Piece]
 
     init(json: Data) throws {
         self = try GameData.decoder.decode(GearFile.self, from: json)
+    }
+
+    func piece(_ id: String?) -> Piece? {
+        guard let id else { return nil }
+        return pieces.first { $0.id == id }
     }
 }
 
 /// Where a player stands, for the level bar.
 nonisolated struct Standing: Sendable, Equatable {
     let level: Int
+    let rank: String
     let pointsIntoLevel: Int
     let pointsToNext: Int?      // nil at the last level
     let fraction: Double        // of the way to the next level, 1 at the last level
@@ -44,27 +51,63 @@ nonisolated enum Progression {
         let points = max(0, points)
         let reached = file.levels.last { $0.points <= points } ?? file.levels[0]
         guard let next = file.levels.first(where: { $0.points > points }) else {
-            return Standing(level: reached.level, pointsIntoLevel: points - reached.points, pointsToNext: nil, fraction: 1)
+            return Standing(level: reached.level, rank: reached.rank, pointsIntoLevel: points - reached.points, pointsToNext: nil, fraction: 1)
         }
         let span = next.points - reached.points
-        return Standing(level: reached.level, pointsIntoLevel: points - reached.points, pointsToNext: next.points - points,
+        return Standing(level: reached.level, rank: reached.rank, pointsIntoLevel: points - reached.points, pointsToNext: next.points - points,
                         fraction: span > 0 ? Double(points - reached.points) / Double(span) : 1)
     }
+}
 
-    /// Every piece of gear the points have earned, in the order of the levels.
-    static func gear(at points: Int, in file: GearFile) -> [GearFile.Gear] {
-        let level = standing(points: points, in: file).level
-        return file.levels.filter { $0.level <= level }.compactMap { rule in file.gear.first { $0.id == rule.gear } }
+/// How a handful of parts changed one piece of gear.
+nonisolated struct Filled: Sendable, Equatable, Identifiable {
+    let piece: GearFile.Piece
+    let before: Int
+    let after: Int
+    var id: String { piece.id }
+    var finished: Bool { after >= piece.parts && before < piece.parts }
+}
+
+/// Gear in parts. Parts fill one piece at a time, the pinned one first and then the pieces in the order of the
+/// file. A finished piece takes no more parts, so nothing a crate gives is ever a duplicate to throw away.
+nonisolated enum Gear {
+    static func isFinished(_ piece: GearFile.Piece, parts: [String: Int]) -> Bool {
+        (parts[piece.id] ?? 0) >= piece.parts
     }
 
-    /// The gear a catch has just earned, when the points rose from one total to another.
-    static func newGear(from before: Int, to after: Int, in file: GearFile) -> [GearFile.Gear] {
-        let had = Set(gear(at: before, in: file).map(\.id))
-        return gear(at: after, in: file).filter { !had.contains($0.id) }
+    /// The finished pieces, in the order of the file.
+    static func owned(parts: [String: Int], in file: GearFile) -> [GearFile.Piece] {
+        file.pieces.filter { isFinished($0, parts: parts) }
     }
 
-    /// Whether the points have earned a named change of play, such as the drain's history on the map.
-    static func has(unlock name: String, at points: Int, in file: GearFile) -> Bool {
-        gear(at: points, in: file).contains { $0.unlock == name }
+    /// Whether the player's gear opens a named way to play, such as the wider veil.
+    static func opens(_ name: String, parts: [String: Int], in file: GearFile) -> Bool {
+        owned(parts: parts, in: file).contains { $0.opens == name }
+    }
+
+    /// The piece the next part goes to, or nil when every piece is finished.
+    static func next(parts: [String: Int], pinned: String?, in file: GearFile) -> GearFile.Piece? {
+        if let pin = file.piece(pinned), !isFinished(pin, parts: parts) { return pin }
+        return file.pieces.first { !isFinished($0, parts: parts) }
+    }
+
+    /// The parts still to be earned for all gear.
+    static func missing(parts: [String: Int], in file: GearFile) -> Int {
+        file.pieces.reduce(0) { $0 + max(0, $1.parts - (parts[$1.id] ?? 0)) }
+    }
+
+    /// Hand over a number of parts. Returns how each piece they went to changed and how many parts were left
+    /// over because every piece is finished.
+    static func add(_ count: Int, to parts: inout [String: Int], pinned: String?, in file: GearFile) -> (filled: [Filled], over: Int) {
+        var left = max(0, count)
+        var filled: [Filled] = []
+        while left > 0, let piece = next(parts: parts, pinned: pinned, in: file) {
+            let before = parts[piece.id] ?? 0
+            let take = min(left, piece.parts - before)
+            parts[piece.id] = before + take
+            left -= take
+            filled.append(Filled(piece: piece, before: before, after: before + take))
+        }
+        return (filled, left)
     }
 }

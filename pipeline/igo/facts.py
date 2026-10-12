@@ -2,7 +2,7 @@
 
 A fact is one or two plain sentences with the source they come from and the day the source was read. Every number
 in a fact is filled in here from data/inlets/summary.json, which the inlets step wrote, so that no number in the
-app is typed by hand. A fact whose source has not been read is not written. The species have no facts yet for
+app is typed by hand. A fact whose source has not been read is not written. The keepers have no facts yet for
 that reason.
 
     uv run python -m igo.facts            writes the app's facts.json

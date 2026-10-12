@@ -21,9 +21,13 @@ final class LocationService: NSObject, CLLocationManagerDelegate {
     private(set) var heading: Double?
     private(set) var denied = false
     var standIn: Fix?
+    var standInCourse: Double?
 
     /// The position the game plays with.
     var fix: Fix? { standIn ?? measured }
+
+    /// The direction the player faces, in degrees clockwise from north. At a desk it is the direction of the walk.
+    var course: Double? { standIn != nil ? standInCourse : heading }
 
     override init() {
         super.init()
