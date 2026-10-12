@@ -39,6 +39,9 @@ def build(keeper: dict) -> list[Path]:
     done = subprocess.run(command, capture_output=True, text=True)
     if done.returncode != 0 or "Traceback" in done.stdout + done.stderr:
         raise SystemExit(f"{keeper['id']}: Blender failed\n{done.stdout[-1500:]}\n{done.stderr[-1500:]}")
+    for line in done.stdout.splitlines():
+        if line.startswith("TURNED"):
+            print("  ", line.lower())
     made = []
     for old in list(MODELS.glob(f"{keeper['id']}_*.usdz")) + list(MODELS.glob(f"{keeper['id']}_*.png")):
         old.unlink()

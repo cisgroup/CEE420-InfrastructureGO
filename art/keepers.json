@@ -12,6 +12,24 @@
    "paints": {"Glub_Main": "3E8F86", "Wings": "E9E2CF", "Eye_White": "F4F1E8"}, "portrait": "Flying_Idle:0", "pose": "Punch:12"},
   {"id": "dino", "source": "ultimate_monsters/Dino_wuerCFCWNR.glb",
    "clips": {"idle": "Idle", "duck": "Duck", "jump": "Jump", "air": "Jump_Idle", "land": "Jump_Land", "yes": "Yes", "no": "No", "wave": "Wave"},
-   "paints": {"Dino_Main": "F2A51A", "Dino_Secondary": "B36B33", "Dino_Teeth": "F4F1E8", "Eye_White": "F4F1E8"}, "portrait": "Idle:0", "pose": "Wave:16"}
+   "paints": {"Dino_Main": "F2A51A", "Dino_Secondary": "B36B33", "Dino_Teeth": "F4F1E8", "Eye_White": "F4F1E8"}, "portrait": "Idle:0", "pose": "Wave:16"},
+  {"id": "puddle", "source": "ultimate_monsters/GreenBlob_y4kJh8EeYS.glb",
+   "clips": {"idle": "Idle", "bite": "Bite_Front", "jump": "Jump", "yes": "Yes", "no": "No", "dance": "Dance"},
+   "paints": {"Green_Main": "5AA6C4", "Eye_White": "F4F1E8"}, "portrait": "Idle:0", "pose": "Dance:8"},
+  {"id": "pigeon", "source": "ultimate_monsters/Pigeon_9NGlBTpDEr.glb",
+   "clips": {"idle": "Idle", "bite": "Bite_Front", "jump": "Jump", "yes": "Yes", "no": "No", "dance": "Dance"},
+   "paints": {"Pigeon_Main": "6F87A6", "Pigeon_Secondary": "F2A51A", "Eye_White": "F4F1E8"}, "portrait": "Idle:0", "pose": "Dance:8"},
+  {"id": "fish", "source": "ultimate_monsters/Fish_7V4gaDMQV8.glb",
+   "clips": {"idle": "Idle", "bite": "Bite_Front", "jump": "Jump", "yes": "Yes", "no": "No", "dance": "Dance"},
+   "paints": {"Fish_Main": "2A6E8E", "Fish_Secondary": "4FA59A", "Fish_Flaps": "F2A51A", "Eye_White": "F4F1E8"}, "portrait": "Idle:0", "pose": "Dance:8"},
+  {"id": "goleling", "source": "ultimate_monsters/Goleling_71gomWolax.glb",
+   "clips": {"idle": "Flying_Idle", "rear": "Headbutt", "dart": "Fast_Flying", "yes": "Yes", "no": "No", "punch": "Punch"},
+   "paints": {"Goleling_Main": "B36B33", "Goleling_Secondary": "E8DDB5", "Eye_White": "F4F1E8"}, "portrait": "Flying_Idle:0", "pose": "Punch:12"},
+  {"id": "dragon", "source": "ultimate_monsters/Dragon_3rUm1cN3yp.glb",
+   "clips": {"idle": "Flying_Idle", "rear": "Headbutt", "dart": "Fast_Flying", "yes": "Yes", "no": "No", "punch": "Punch"},
+   "paints": {"Dragon_Main": "1F4E6B", "Dragon_Secondary": "F2A51A", "Dragon_Horn": "E8DDB5", "Eye_White": "F4F1E8"}, "portrait": "Flying_Idle:0", "pose": "Punch:12"},
+  {"id": "bunny", "source": "ultimate_monsters/Bunny_irZjWFARyl.glb",
+   "clips": {"idle": "Idle", "duck": "Duck", "jump": "Jump", "air": "Jump_Idle", "land": "Jump_Land", "yes": "Yes", "no": "No", "wave": "Wave"},
+   "paints": {"Bunny_Main": "F1ECE0", "Bunny_Secondary": "2A6E8E", "Material.011": "6E9A3F", "Material.024": "F2A51A", "Eye_White": "F4F1E8"}, "portrait": "Idle:0", "pose": "Wave:16"}
  ]
 }

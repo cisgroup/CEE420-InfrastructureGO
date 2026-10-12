@@ -12,6 +12,12 @@ The keepers are models of the pack Ultimate Monsters by Quaternius, repainted in
 | mushnub | Mushnub of Ultimate Monsters | Quaternius | CC0 1.0, as the model's page states | https://poly.pizza/m/LWKmS30Xxl | 2026-10-11 |
 | glub | Glub of Ultimate Monsters | Quaternius | CC0 1.0, as the model's page states | https://poly.pizza/m/x59pqJscry | 2026-10-11 |
 | dino | Dino of Ultimate Monsters | Quaternius | CC0 1.0, as the model's page states | https://poly.pizza/m/wuerCFCWNR | 2026-10-11 |
+| puddle | GreenBlob of Ultimate Monsters | Quaternius | CC0 1.0, as the model's page states | https://poly.pizza/m/y4kJh8EeYS | 2026-10-11 |
+| pigeon | Pigeon of Ultimate Monsters | Quaternius | CC0 1.0, as the model's page states | https://poly.pizza/m/9NGlBTpDEr | 2026-10-11 |
+| fish | Fish of Ultimate Monsters | Quaternius | CC0 1.0, as the model's page states | https://poly.pizza/m/7V4gaDMQV8 | 2026-10-11 |
+| goleling | Goleling of Ultimate Monsters | Quaternius | CC0 1.0, as the model's page states | https://poly.pizza/m/71gomWolax | 2026-10-11 |
+| dragon | Dragon of Ultimate Monsters | Quaternius | CC0 1.0, as the model's page states | https://poly.pizza/m/3rUm1cN3yp | 2026-10-11 |
+| bunny | Bunny of Ultimate Monsters | Quaternius | CC0 1.0, as the model's page states | https://poly.pizza/m/irZjWFARyl | 2026-10-11 |
 
 ## Sounds
 

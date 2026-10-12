@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 
 def asked():
@@ -53,6 +53,44 @@ def repaint(paints, glaze):
         if "Coat Weight" in shader.inputs:
             shader.inputs["Coat Weight"].default_value = 1.0 if shiny else glaze
             shader.inputs["Coat Roughness"].default_value = 0.08
+
+
+def face_forward(rig, meshes, clip, frame):
+    """Turn the whole model about the vertical so that it looks toward the viewer.
+
+    The models of the pack do not all look the same way, and some stand turned to one side while they idle. Where
+    a model looks is read from its eyes at one moment of one movement: the middle of everything painted as an
+    eye, seen from the middle of the whole body. The model is then turned until that direction points along
+    minus y, which is the front in Blender and the side the pictures are taken from.
+    """
+    first, _ = use(rig, action_named(clip))
+    bpy.context.scene.frame_set(first + frame)
+    deps = bpy.context.evaluated_depsgraph_get()
+    eyes, all_points = [], []
+    for mesh in meshes:
+        slots = [slot.material.name if slot.material else "" for slot in mesh.material_slots]
+        shaped = mesh.evaluated_get(deps)
+        data = shaped.to_mesh()
+        for polygon in data.polygons:
+            points = [shaped.matrix_world @ data.vertices[v].co for v in polygon.vertices]
+            all_points += points
+            if slots and slots[polygon.material_index].startswith("Eye"):
+                eyes += points
+        shaped.to_mesh_clear()
+    if not eyes:
+        return 0.0
+    middle = sum(all_points, Vector()) / len(all_points)
+    look = sum(eyes, Vector()) / len(eyes) - middle
+    if math.hypot(look.x, look.y) < 0.02 * max((p - middle).length for p in all_points):
+        return 0.0
+    turn = -math.pi / 2 - math.atan2(look.y, look.x)
+    turn = (turn + math.pi) % (2 * math.pi) - math.pi
+    if abs(turn) < math.radians(8):
+        return 0.0
+    for thing in [o for o in bpy.data.objects if o.parent is None]:
+        thing.matrix_world = Matrix.Rotation(turn, 4, "Z") @ thing.matrix_world
+    bpy.context.view_layer.update()
+    return math.degrees(turn)
 
 
 def use(rig, action):
@@ -120,6 +158,8 @@ def main():
     paints = dict(pair.split("=") for pair in want.get("paints", "").split(",") if pair)
     repaint(paints, float(want.get("glaze", "0.6")))
     bpy.context.scene.render.fps = 24
+    clip, frame = want.get("portrait", "Idle:0").split(":")
+    print("TURNED", keeper, round(face_forward(rig, meshes, clip, int(frame)), 1), "degrees")
 
     for pair in want["clips"].split(","):
         name, clip = pair.split("=")
