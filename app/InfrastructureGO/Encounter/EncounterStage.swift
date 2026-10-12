@@ -549,6 +549,7 @@ final class EncounterStage {
         guard let pick else { return }
         time = moment == "land" ? pick.start + 0.02 : (pick.start + pick.end) / 2
         lastBeat = nil
+        mode = .live
         stepLive(0)
         running = false
     }

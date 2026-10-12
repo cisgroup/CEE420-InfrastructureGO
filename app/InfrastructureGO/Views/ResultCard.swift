@@ -20,6 +20,9 @@ struct ResultCard: View {
                     }
                 }
                 quiet
+                if let next = game.nextUp {
+                    Label(next, systemImage: "arrow.forward.circle").font(.subheadline).foregroundStyle(Look.ink)
+                }
                 Button(action: done) {
                     Text("Done").font(.headline).frame(maxWidth: .infinity, minHeight: 50)
                 }

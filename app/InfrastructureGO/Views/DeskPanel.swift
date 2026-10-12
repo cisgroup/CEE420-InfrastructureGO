@@ -26,6 +26,15 @@ struct DeskPanel: View {
                 Button("Next week") { game.skip(days: 7) }
             }
             .buttonStyle(.bordered)
+            if let visit = game.visitorOfMyZone {
+                Button("Walk to this week's visitor") {
+                    game.walk(to: visit.site.coordinate, metresPerSecond: 40)
+                    dismiss()
+                }
+                .buttonStyle(.bordered)
+            } else {
+                Text("A visitor comes to town once two pieces of gear are finished.").font(.footnote).foregroundStyle(Look.inkSoft)
+            }
             Toggle("Easy catch", isOn: Binding(get: { game.progress.easyCatch }, set: { game.set(easyCatch: $0) }))
             Toggle("Sound", isOn: Binding(get: { game.progress.sound }, set: { game.set(sound: $0) }))
             Button("Start over", role: .destructive) {

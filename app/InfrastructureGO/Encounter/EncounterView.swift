@@ -328,6 +328,11 @@ struct EncounterView: View {
             stage.holdStill()
             step = .reacting
             stage.resolve(.caught, at: stage.placeInFront(ofSpot: beat.spot)) { outcome = .caught }
+        case "mastered":
+            guard let tell = plan.timeline.beats.first(where: { $0.phase == .tell && $0.next != $0.spot }) else { return }
+            stage.hold(at: "crouch")
+            step = .reacting
+            stage.resolve(.mastered, at: stage.place(ofSpot: tell.next)) { outcome = .mastered }
         case "miss":
             let beat = plan.timeline.beat(at: stage.time)
             step = .reacting

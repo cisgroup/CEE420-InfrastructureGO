@@ -69,13 +69,10 @@ final class GameModel {
     /// While a meeting fills the screen nothing is said on the map. What came up is said when the map is back.
     var inMeeting = false {
         didSet {
-            if !inMeeting, let waiting = unsaid {
-                unsaid = nil
-                announce(waiting)
-            }
+            if !inMeeting { sayNext() }
         }
     }
-    private var unsaid: String?
+    private var unsaid: [String] = []
 
     /// The desk panel can move the clock forward, so that the next day and the next week can be tried at once.
     private(set) var clockOffset: TimeInterval = 0
@@ -400,7 +397,7 @@ final class GameModel {
         refreshJobs()
         openHunt()
         tellWhatIsNew(levelBefore: levelBefore)
-        for piece in result.finished { unsaid = "\(piece.name) finished. \(piece.says)" }
+        for piece in result.finished { announce("\(piece.name) finished. \(piece.says)") }
         save()
         moved()
         return result
@@ -481,21 +478,44 @@ final class GameModel {
         announce(text)
     }
 
+    /// Say a sentence on the map for a while. Sentences wait their turn, so that two things that happen at once
+    /// are both read, one after the other.
     func announce(_ text: String) {
-        guard !inMeeting else {
-            unsaid = text
-            return
-        }
-        announcement = text
-        let said = text
+        guard !unsaid.contains(text), announcement != text else { return }
+        unsaid.append(text)
+        if announcement == nil { sayNext() }
+    }
+
+    private func sayNext() {
+        guard !inMeeting, announcement == nil, !unsaid.isEmpty else { return }
+        let said = unsaid.removeFirst()
+        announcement = said
         Task { [weak self] in
-            try? await Task.sleep(for: .seconds(9))
-            if self?.announcement == said { self?.announcement = nil }
+            try? await Task.sleep(for: .seconds(7))
+            if self?.announcement == said {
+                self?.announcement = nil
+                self?.sayNext()
+            }
         }
     }
 
     func dismissAnnouncement() {
         announcement = nil
+        sayNext()
+    }
+
+    /// One line about the next thing within reach, for the end of a result.
+    var nextUp: String? {
+        if let waits = invitations.first(where: { !$0.isVisitor }), let far = distance(to: waits.head) {
+            return "A keeper that slipped away waits \(Words.distance(far)) from here."
+        }
+        if let hunt = huntLine { return hunt }
+        if let stranger = shadows.first(where: { !$0.met }) { return "Someone you have not met is \(Words.distance(stranger.distanceM)) away." }
+        if let near = shadows.first { return "\(near.keeper.name) is \(Words.distance(near.distanceM)) away." }
+        switch reading.state {
+        case .signal, .atDrain: return reading.distanceM.map { "The detector has something \(Words.distance($0)) away." }
+        default: return "Quiet here. The needle will swing again as you walk on."
+        }
     }
 
     // MARK: choices of the player
@@ -613,6 +633,13 @@ final class GameModel {
         if let head = here.min(by: { Geo.distance(middle, $0.coordinate) < Geo.distance(middle, $1.coordinate) }) { stand(at: head) }
     }
 
+    /// The drain of this week's visitor in the zone the player stands in, or in the first zone.
+    var visitorOfMyZone: (site: Inlet, keeper: Keeper)? {
+        guard let content else { return nil }
+        let mine = location.fix.flatMap { content.zones.zone(containing: $0.coordinate)?.id } ?? content.zones.zones.first?.id ?? ""
+        return visitor(in: mine)
+    }
+
     func skip(days: Int) {
         clockOffset += Double(days) * SpawnRules.secondsPerDay
         refreshJobs()
@@ -662,6 +689,10 @@ final class GameModel {
         }
         if let site = asked.string(forKey: "igo.stand"), let head = content?.inlets[site] {
             location.standIn = Fix(coordinate: Coordinate(lon: head.lon + 0.00003, lat: head.lat - 0.00003), accuracyM: 5)
+        }
+        if asked.string(forKey: "igo.stand") == "visitor", let visit = visitor(in: "west") {
+            // Sixty metres short of the visitor's drain, so that its light is seen from a little way off.
+            location.standIn = Fix(coordinate: Coordinate(lon: visit.site.lon + 0.0007, lat: visit.site.lat - 0.0002), accuracyM: 5)
         }
         if let place = asked.string(forKey: "igo.walk")?.split(separator: ",").compactMap({ Double($0) }), place.count == 2 {
             location.standIn = Fix(coordinate: Coordinate(lon: place[1], lat: place[0]), accuracyM: 5)

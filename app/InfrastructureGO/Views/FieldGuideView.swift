@@ -68,7 +68,8 @@ struct FieldGuideView: View {
                                     }
                                 }
                             Text(page.meetings > 0 ? keeper.name : "Not met yet").font(.subheadline.weight(.semibold)).foregroundStyle(Look.ink)
-                            Text(page.meetings > 0 ? page.rung.name : keeper.hint).font(.caption).foregroundStyle(Look.inkSoft).multilineTextAlignment(.center).lineLimit(2)
+                            Text(page.meetings > 0 ? page.rung.name : keeper.hint).font(.caption).foregroundStyle(Look.inkSoft).multilineTextAlignment(.center).lineLimit(4)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
                         .frame(maxWidth: .infinity)
                     }
