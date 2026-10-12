@@ -1,0 +1,157 @@
+{
+ "about": "The sounds of the game and the file each was made from, written by tools/art/sounds.py. The packs and their licences are in art/sources.json.",
+ "sounds": [
+  {
+   "name": "tick",
+   "file": "tick.caf",
+   "from": "tick_001.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "the detector ticks",
+   "bytes": 5888
+  },
+  {
+   "name": "rattle",
+   "file": "rattle.caf",
+   "from": "impactMetal_light_002.ogg",
+   "pack": "kenney_impact_sounds",
+   "when": "the grate rattles before a keeper comes out",
+   "bytes": 24636
+  },
+  {
+   "name": "pop",
+   "file": "pop.caf",
+   "from": "pluck_001.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a keeper pops out",
+   "bytes": 12874
+  },
+  {
+   "name": "swish",
+   "file": "swish.caf",
+   "from": "swish-3.wav",
+   "pack": "swishes",
+   "when": "the marker is thrown",
+   "bytes": 16960
+  },
+  {
+   "name": "tap",
+   "file": "tap.caf",
+   "from": "impactPlate_light_001.ogg",
+   "pack": "kenney_impact_sounds",
+   "when": "the marker lands",
+   "bytes": 61838
+  },
+  {
+   "name": "hop",
+   "file": "hop.caf",
+   "from": "impactSoft_medium_002.ogg",
+   "pack": "kenney_impact_sounds",
+   "when": "a keeper lands from a hop",
+   "bytes": 15764
+  },
+  {
+   "name": "accept",
+   "file": "accept.caf",
+   "from": "confirmation_001.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a keeper accepts the marker",
+   "bytes": 29660
+  },
+  {
+   "name": "refuse",
+   "file": "refuse.caf",
+   "from": "back_002.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a throw missed",
+   "bytes": 10000
+  },
+  {
+   "name": "slip",
+   "file": "slip.caf",
+   "from": "drop_003.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a keeper slips away",
+   "bytes": 20694
+  },
+  {
+   "name": "crate",
+   "file": "crate.caf",
+   "from": "impactWood_light_002.ogg",
+   "pack": "kenney_impact_sounds",
+   "when": "the crate rises",
+   "bytes": 27266
+  },
+  {
+   "name": "open",
+   "file": "open.caf",
+   "from": "impactWood_medium_001.ogg",
+   "pack": "kenney_impact_sounds",
+   "when": "the crate opens",
+   "bytes": 33182
+  },
+  {
+   "name": "part",
+   "file": "part.caf",
+   "from": "glass_002.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a part of gear flies out",
+   "bytes": 14892
+  },
+  {
+   "name": "piece",
+   "file": "piece.caf",
+   "from": "confirmation_003.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a piece of gear is finished",
+   "bytes": 32384
+  },
+  {
+   "name": "seal",
+   "file": "seal.caf",
+   "from": "impactPunch_medium_001.ogg",
+   "pack": "kenney_impact_sounds",
+   "when": "a seal is stamped",
+   "bytes": 39526
+  },
+  {
+   "name": "page",
+   "file": "page.caf",
+   "from": "scroll_003.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a page of the journal turns",
+   "bytes": 92298
+  },
+  {
+   "name": "hello",
+   "file": "hello.caf",
+   "from": "glass_005.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a keeper the player knows",
+   "bytes": 13612
+  },
+  {
+   "name": "level",
+   "file": "level.caf",
+   "from": "confirmation_004.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a level is reached",
+   "bytes": 47350
+  },
+  {
+   "name": "select",
+   "file": "select.caf",
+   "from": "select_002.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a button is pressed",
+   "bytes": 7658
+  },
+  {
+   "name": "uncover",
+   "file": "uncover.caf",
+   "from": "drop_001.ogg",
+   "pack": "kenney_interface_sounds",
+   "when": "a drain appears from under the veil",
+   "bytes": 13526
+  }
+ ]
+}

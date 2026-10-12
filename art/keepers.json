@@ -1,0 +1,17 @@
+{
+ "about": "How each keeper of the game is made from a model of the pack. Source is the fetched file under art/downloads. Clips gives the game's word for a movement and the name the pack has for it. Paints gives the pack's name of a paint and the colour of the game's palette that replaces it. Portrait and pose name the movement and the frame of the two pictures. tools/art/build.py reads this file.",
+ "keepers": [
+  {"id": "frog", "source": "ultimate_monsters/Frog_37wofOCOzG.glb",
+   "clips": {"idle": "Idle", "duck": "Duck", "jump": "Jump", "air": "Jump_Idle", "land": "Jump_Land", "yes": "Yes", "no": "No", "wave": "Wave"},
+   "paints": {"Frog_Main": "6E9A3F", "Frog_Secondary": "E8DDB5", "Eye_White": "F4F1E8"}, "portrait": "Idle:0", "pose": "Wave:16"},
+  {"id": "mushnub", "source": "ultimate_monsters/Mushnub_LWKmS30Xxl.glb",
+   "clips": {"idle": "Idle", "bite": "Bite_Front", "jump": "Jump", "yes": "Yes", "no": "No", "dance": "Dance"},
+   "paints": {"MushroomKing_Main": "E8DDB5", "MushroomKing_Secondary": "2F6F92", "Eye_White": "F4F1E8"}, "portrait": "Idle:0", "pose": "Dance:8"},
+  {"id": "glub", "source": "ultimate_monsters/Glub_x59pqJscry.glb",
+   "clips": {"idle": "Flying_Idle", "rear": "Headbutt", "dart": "Fast_Flying", "yes": "Yes", "no": "No", "punch": "Punch"},
+   "paints": {"Glub_Main": "3E8F86", "Wings": "E9E2CF", "Eye_White": "F4F1E8"}, "portrait": "Flying_Idle:0", "pose": "Punch:12"},
+  {"id": "dino", "source": "ultimate_monsters/Dino_wuerCFCWNR.glb",
+   "clips": {"idle": "Idle", "duck": "Duck", "jump": "Jump", "air": "Jump_Idle", "land": "Jump_Land", "yes": "Yes", "no": "No", "wave": "Wave"},
+   "paints": {"Dino_Main": "F2A51A", "Dino_Secondary": "B36B33", "Dino_Teeth": "F4F1E8", "Eye_White": "F4F1E8"}, "portrait": "Idle:0", "pose": "Wave:16"}
+ ]
+}

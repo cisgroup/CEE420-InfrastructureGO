@@ -1,7 +1,7 @@
 # InfrastructureGO. Each target is one step and says what it writes. Run make with no target to list them.
 
 .DEFAULT_GOAL := help
-.PHONY: help sync inlets facts convert match loop check test swift app app-test web map smoke verify
+.PHONY: help sync inlets facts convert match loop check test swift app app-test art web map smoke verify
 
 help:    ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F ':.*## ' '{printf "  %-9s %s\n", $$1, $$2}'
@@ -41,6 +41,10 @@ app:     ## build the game, put it on the iPhone simulator and start it there
 
 app-test: ## run the app's tests inside the iPhone simulator and count them
 	app/scripts/test.sh
+
+art:     ## make the keepers and the sounds of the game from the fetched packs, which needs Blender, and write the credits
+	python3 tools/art/sounds.py
+	python3 tools/art/build.py
 
 web:     ## run the tests of the town's map, which need node and no package
 	node --test web/tests
